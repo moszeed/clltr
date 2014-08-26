@@ -172,7 +172,7 @@ module.exports = function(grunt) {
                     {   expand: true,
                         cwd: 'dist/',
                         src: '**',
-                        dest: '../../../Public/clltr/' }
+                        dest: '../clltr-page/' }
                 ]
             }
         },
@@ -217,9 +217,9 @@ module.exports = function(grunt) {
 
     });
 
-
-    grunt.registerTask('libarys', ['bowercopy:libarys', 'concat:libarys', 'uglify:libarys']);
-    grunt.registerTask('polymer', ['bowercopy:polymer', 'concat:polymer']);
+    grunt.registerTask('install', ['libarys', 'polymer', 'htmlmin', 'browserify', 'uglify', 'less']);
+    grunt.registerTask('libarys', ['bowercopy:libarys', 'uglify:libarys']);
+    grunt.registerTask('polymer', ['bowercopy:polymer']);
 
     //shortcut
     grunt.registerTask('serve', ['concurrent:serve']);
