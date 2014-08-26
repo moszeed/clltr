@@ -8,10 +8,10 @@
     <div class="tags">
         <% _.each(tags, function(tag, key) { %>
 
-            <span class="<%= key%>"><%= tag%> <span class="delete">x</span></span>
+            <span class="<%= key%>"><span class="delete">x</span> <%= tag%></span>
         <% }); %>
     </div>
-    <div class="addTag">add</div>
+    <div class="addTag">&#43;</div>
 </div>
 <div class="control">
     <div class="edit">edit</div>
