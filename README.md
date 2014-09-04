@@ -1,4 +1,4 @@
 clltr
 =====
+collection of links, stored in your Dropbox
 
-your collection in your Dropbox
