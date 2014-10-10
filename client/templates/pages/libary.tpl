@@ -1,7 +1,7 @@
 <div id="head">
     <div id="addUrl">
         <input placeholder="add url">
-        <span class="loadingIndicator"> ... add site to clltr </span>
+        <span class="loadingIndicator"> try to fetch Page Data ... </span>
     </div>
     <div id="logout">logout</div>
 </div>

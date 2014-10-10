@@ -4,6 +4,7 @@
 
     var $               = require('jquery');
     var _               = require('underscore');
+    var when            = require('when');
     var Backbone        = require('backbone');
         Backbone.$      = $;
         Backbone.setDropboxClient(DropboxClient);
@@ -12,30 +13,42 @@
 
         List.Model = Backbone.Model.extend({
 
-            embedlyUrl    : "https://api.embed.ly/1/extract?key=35550e76c44048aa92ca559f77d2fd1e&format=json&url=",
+            embedlyUrl  : "https://api.embed.ly/1/extract?key=35550e76c44048aa92ca559f77d2fd1e&format=json&url=",
 
-            _getDataByPageMunch : function(callback) {
-
-                var that = this;
-                $.get(this.embedlyUrl + this.get('url'), function(data) {
-                    that.save({
-                        name        : data.title,
-                        description : data.description,
-                        created     : Date.now()
-                    });
-
-                    callback();
-                });
-            },
-
-            store    : 'list',
-            defaults : {
+            store       : 'list',
+            defaults    : {
                 url         : null,
                 name        : null,
                 tags        : null,
                 description : null,
                 favicon_url : null,
                 created     : null
+            },
+
+            fetchData : function() {
+
+                var that = this;
+                return when.promise(function(resolve, reject) {
+
+                    var setData = function(pageData) {
+
+                        pageData = pageData || {};
+
+                        that.save({
+                            name        : pageData.title || that.get('url'),
+                            description : pageData.description || '',
+                            created     : Date.now()
+                        });
+
+                        resolve();
+                    };
+
+                    $.ajax({
+                        url     : that.embedlyUrl + that.get('url'),
+                        error   : setData,
+                        success : setData
+                    });
+                });
             }
         });
 
@@ -56,10 +69,11 @@
                 }
 
                 model.set('url', url);
-                model._getDataByPageMunch(function() {
-                    that.add(model);
-                    $('.loadingIndicator').css('visibility', 'hidden');
-                });
+
+                return model.fetchData()
+                    .then(function() {
+                        that.add(model);
+                    });
             },
 
             refresh : function(params) {

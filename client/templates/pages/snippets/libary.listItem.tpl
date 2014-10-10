@@ -1,10 +1,9 @@
 <div class="top_lane">
     <div class="favicon"><img></div>
-    <div class="name"><%= name%></div>
+    <div class="name" title="<%= dateFormated %>"><%= name%></div>
     <div class="url"><a target="_blank" href="<%= url%>"><%= url%></a></div>
 </div>
 <div class="info_lane">
-    <div class="created"><%= dateFormated %></div>
     <div class="tags">
         <% _.each(tags, function(tag, key) { %>
 

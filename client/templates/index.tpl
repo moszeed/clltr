@@ -21,7 +21,6 @@
     </body>
 
     <script src="./js/app.min.js"></script>
-    <!-- <script src="./js/polymer.js"></script> -->
 
 </html>
 

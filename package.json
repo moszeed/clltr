@@ -7,7 +7,8 @@
     "email": "moszeed@gmail.com"
   },
   "dependencies": {
-    "polyfill-webcomponents": ">= 0.20140621.0"
+    "polyfill-webcomponents": ">= 0.20140621.0",
+    "when": "^3.5.0"
   },
   "browser": {
     "jquery": "./client/scripts/libs/jquery.js",

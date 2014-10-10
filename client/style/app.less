@@ -1,6 +1,10 @@
 @import "normalize.less";
 @import "main.less";
 
+* {
+    box-sizing: border-box;
+}
+
 html, body {
     height : 100%;
     overflow : hidden;
@@ -150,7 +154,7 @@ html, body {
 
         .top_lane {
 
-            margin      : 0 10px 0 10px;
+            margin      : 0 10px 0 20px;
             padding-top : 10px;
             width       : 95%;
 
@@ -174,10 +178,15 @@ html, body {
                 overflow : hidden;
             }
 
-            .favicon img {
-                width   : 15px;
-                height  : 15px;
-                margin  : 5px 30px 2px 10px;
+            .favicon {
+
+                width : 25px;
+
+                img {
+                    width   : 15px;
+                    height  : 15px;
+                }
+
             }
 
             .name {
@@ -195,9 +204,7 @@ html, body {
             width       : 80%;
             font-size   : 80%;
             color       : #707070;
-            margin      : 0 100px 0 65px;
-
-
+            margin      : 0 100px 0 20px;
 
             .created,
             .tags,
@@ -235,16 +242,11 @@ html, body {
                 padding : 1px 10px 1px 10px;
                 background-color: #E4E4E4;
             }
-
-            .created {
-                font-size: 110%;
-                width : 130px;
-            }
         }
 
         .description  {
 
-            margin          : 10px 100px 0 65px;
+            margin          : 10px 100px 0 20px;
             padding-bottom  : 15px;
             width           : 80%;
         }
@@ -281,8 +283,8 @@ html, body {
     left                : 0;
     right               : 0;
     bottom              : 0;
-    background-color    : #000;
-    opacity             : 0.9;
+    background-color    : #333;
+    opacity             : 0.8;
     z-index             : 10;
 }
 
@@ -291,8 +293,11 @@ html, body {
     position            : fixed;
     top                 : 10%;
     left                : 30%;
+    min-width           : 30%;
+    min-height          : 30%;
     padding             : 10px;
     opacity             : 1;
+    border-radius       : 5px;
     background-color    : #FFFFFF;
     z-index             : 11;
 }

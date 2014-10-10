@@ -3,6 +3,7 @@ module.exports = function(grunt) {
     var shims = require("./shims"),
         sharedModules = Object.keys(shims).concat([
             //"polyfill-webcomponents"
+            "when"
         ]);
 
     grunt.initConfig({
@@ -57,7 +58,7 @@ module.exports = function(grunt) {
                                 './client/scripts/app.js'],
                 dest        : 'dist/js/app.js',
                 options: {
-                    external: ['jquery', 'backbone', 'underscore'],
+                    external: ['jquery', 'backbone', 'underscore', 'when'],
 
                     //add pages
                     require : Object.keys(shims).concat([

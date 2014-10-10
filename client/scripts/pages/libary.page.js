@@ -4,33 +4,13 @@
 
     var $           = require('jquery');
     var _           = require('underscore');
+    var when        = require('when');
     var Backbone    = require('backbone');
         Backbone.$  = $;
 
-    var List = require('../modules/list.module.js');
-    var Tags = require('../modules/tags.module.js');
-
-    function timeConverter(timestamp){
-
-        if (String(timestamp).length === 14) {
-            timestamp = timestamp * 1000;
-        }
-
-        var a = new Date(timestamp);
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        var year = a.getFullYear();
-
-        var month = months[a.getMonth() - 1];
-        var date = ('0' + a.getDate()).slice(-2);
-        var hour = ('0' + a.getHours()).slice(-2);
-        var min = ('0' + a.getMinutes()).slice(-2);
-        var sec = ('0' + a.getSeconds()).slice(-2);
-
-        var time = date + '.' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-
-        return time;
-    }
-
+    var List    = require('../modules/list.module.js');
+    var Tags    = require('../modules/tags.module.js');
+    var Helper  = require('../modules/helper.module.js');
 
     var Libary = module.exports;
 
@@ -39,10 +19,11 @@
 
         Libary.Head = Backbone.View.extend({
 
-            el  : '#main.libary #head',
-            events : {
+            el      : '#main.libary #head',
+            events  : {
 
                 'click #logout' : function() {
+
                     User.logout();
                 },
 
@@ -51,8 +32,15 @@
                     var $element = $(el.target);
                     var value    = $element.val();
                     if (value.length !== 0) {
-                        Libary.Events.trigger('addByUrl', value);
-                        $('.loadingIndicator').css('visibility', 'visible');
+
+                        var $loadingIndicator = $('.loadingIndicator');
+                            $loadingIndicator.css('visibility', 'visible');
+
+                        this.collection.addByUrl(value)
+                            .done(function() {
+                                $loadingIndicator.css('visibility', 'hidden');
+                                $element.val('');
+                            });
                     }
 
                 }
@@ -385,7 +373,7 @@
                     that.template({
                         path    : './templates/pages/snippets/libary.listItem.html',
                         params  : _.extend({}, that.model.attributes, {
-                            dateFormated : timeConverter(that.model.get('created'))
+                            dateFormated : Helper.timeConverter(that.model.get('created'))
                         }),
                         success : function() {
                             that.setFavicon();
@@ -425,22 +413,17 @@
         Libary.View = Backbone.View.extend({
 
             el          : '#main.libary',
+
             initialize  : function() {
 
                 var that = this;
 
-                    that.head           = new Libary.Head();
+                    that.cList = new List.Collection();
+                    that.cTags = new Tags.Collection();
 
-                    that.listCollection = new List.Collection();
-                    that.listTags       = new Libary.List({
-                        collection : that.listCollection
-                    });
-
-                    that.tagsCollection = new Tags.Collection();
-                    that.tagsView       = new Libary.Tags({
-                        collection : that.tagsCollection
-                    });
-
+                    that.vHead = new Libary.Head({collection: that.cList});
+                    that.vList = new Libary.List({collection: that.cList});
+                    that.vTags = new Libary.Tags({collection: that.cTags});
 
                     that.listenTo(Libary.Events, 'refresh', function(tagName) {
 
@@ -452,14 +435,9 @@
                             };
                         }
 
-                        that.tagsView.setTagActive(tagName);
-                        that.listCollection.refresh(filter);
+                        that.vTags.setTagActive(tagName);
+                        that.cList.refresh(filter);
                     });
-
-                    that.listenTo(Libary.Events, 'addByUrl', function(url) {
-                        that.listCollection.addByUrl(url);
-                    });
-
 
             }
 
