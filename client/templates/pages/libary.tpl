@@ -5,5 +5,5 @@
     </div>
     <div id="logout">logout</div>
 </div>
-<div id="tags"></div>
 <div id="libary"></div>
+<div id="tags"></div>

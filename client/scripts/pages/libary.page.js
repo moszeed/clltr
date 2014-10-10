@@ -312,10 +312,10 @@
                     });
                 },
 
-                'click .tags span .delete' : function(events) {
+                'click .tags .delete' : function(events) {
 
                     var tags    = this.model.get('tags');
-                        tags.splice($(events.target).parent().attr('class'), 1);
+                        tags.splice($(events.target).parent().attr('class').split(' ')[0], 1);
 
                     this.model.save('tags', tags);
                 },
