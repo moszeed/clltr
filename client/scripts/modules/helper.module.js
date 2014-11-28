@@ -4,6 +4,26 @@
 
     var Helper = module.exports;
 
+        Helper.getCurrentUrl = function() {
+
+            var parser      = document.createElement('a');
+                parser.href = document.URL;
+
+            var port = parser.port;
+            if (port !== '') {
+                port = ":" + port;
+            }
+        
+            var pathname = parser.pathname;
+            if (pathname !== '') {
+                pathname = "/" + pathname;
+            } 
+
+            return  parser.protocol + "//" +
+                    parser.hostname + port + parser.pathname;
+        };
+
+
         Helper.timeConverter = function(timestamp) {
 
             if (String(timestamp).length === 14) {

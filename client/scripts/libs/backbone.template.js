@@ -1,9 +1,14 @@
-;(function() {
+(function() {
 
     var Template = {};
         Template._promises  = {};
         Template._templates = {};
 
+
+    var $           = require('jquery');
+    var _           = require('underscore');
+    var Backbone    = require('Backbone');
+        Backbone.$  = $;
 
     function getTemplate(path) {
         var promise = Template._promises[path] || $.get(path);

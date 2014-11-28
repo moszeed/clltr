@@ -5,5 +5,21 @@
     </div>
     <div id="logout">logout</div>
 </div>
-<div id="libary"></div>
-<div id="tags"></div>
+<div id="libary">
+    <div id="videos">
+        <h3>Video</h3>
+        <div class="content"></div>
+    </div>
+    <div id="images">
+        <h3>Image</h3>
+        <div class="content"></div>
+    </div>
+    <div id="links">
+        <h3>Link</h3>
+        <div class="content"></div>
+    </div>
+</div>
+<div id="tags">
+    <h3>Tags</h3>
+    <div class="content"></div>
+</div>

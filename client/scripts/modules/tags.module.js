@@ -2,9 +2,10 @@
 
     "use strict";
 
+    var User            = require('./user.module.js');
     var _               = require('underscore');
     var Backbone        = require('backbone');
-        Backbone.setDropboxClient(DropboxClient);
+        Backbone.setDropboxClient(User.getDbClient());
 
     var Tags = module.exports;
 

@@ -7,7 +7,9 @@
     var when            = require('when');
     var Backbone        = require('backbone');
         Backbone.$      = $;
-        Backbone.setDropboxClient(DropboxClient);
+
+    var User            = require('./user.module.js');
+        Backbone.setDropboxClient(User.getDbClient());
 
     var List = module.exports;
 
@@ -19,8 +21,10 @@
             defaults    : {
                 url         : null,
                 name        : null,
+                type        : null,
                 tags        : null,
                 description : null,
+                previewImageUrl : null,
                 favicon_url : null,
                 created     : null
             },
@@ -34,11 +38,33 @@
 
                         pageData = pageData || {};
 
-                        that.save({
-                            name        : pageData.title || that.get('url'),
-                            description : pageData.description || '',
-                            created     : Date.now()
-                        });
+                        var params = {
+                            name            : pageData.title || that.get('url'),
+                            description     : pageData.description || '',
+                            type            : pageData.type || null,
+                            previewImageUrl : null,
+                            created         : Date.now()
+                        };
+
+                        //sort other media types
+                        if (pageData.media && pageData.type === 'html') {
+
+                            if (pageData.media.type === 'video') {
+
+                                params.type = 'video';
+
+                                //get preview url
+                                if (pageData.images.length !== 0) {
+                                    params.previewImageUrl = pageData.images[0].url;
+                                }
+                            }
+
+                            if (pageData.media.type === 'photo') {
+                                params.type = 'image';
+                            }
+                        }
+
+                        that.save(params);
 
                         resolve();
                     };
@@ -56,6 +82,7 @@
 
             store       : 'list',
             model       : List.Model,
+
             comparator  : 'name',
 
             addByUrl    : function(url) {

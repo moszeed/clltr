@@ -2,6 +2,12 @@
 
     "use strict";
 
+    var $           = require('jquery');
+    var _           = require('underscore');
+    var Dropbox     = require('dropbox');
+    var Backbone    = require('Backbone');
+        Backbone.$  = $;
+
     var contentCache = [];
 
     var _cache = {};
@@ -167,10 +173,6 @@
 
         if (dropboxClient == void 0) {
             throw new Error('no dropbox client');
-        }
-
-        if (false === (dropboxClient instanceof Dropbox.Client)) {
-            throw new Error('invalid dropbox client');
         }
 
         Backbone.dropboxClient = dropboxClient;

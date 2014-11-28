@@ -9,18 +9,19 @@
 
         <link rel="stylesheet" href="style/app.css">
 
-        <script src="./js/libarys.min.js"></script>
+        <script src="./scripts/libarys.js"></script>
     </head>
 
     <body>
 
         <div class="overlayInner"></div>
         <div class="overlay"></div>
+        <div id="impressumLink">Contact details / Disclaimer</div>
 
         <div id="main"></div>
     </body>
 
-    <script src="./js/app.min.js"></script>
+    <script src="./scripts/app.js"></script>
 
 </html>
 

@@ -10,7 +10,9 @@
 
     var List    = require('../modules/list.module.js');
     var Tags    = require('../modules/tags.module.js');
+    var User    = require('../modules/user.module.js');
     var Helper  = require('../modules/helper.module.js');
+
 
     var Libary = module.exports;
 
@@ -25,6 +27,8 @@
                 'click #logout' : function() {
 
                     User.logout();
+
+                    window.rRouter.changePage('whatis');
                 },
 
                 'change input' : function(el) {
@@ -271,7 +275,7 @@
             addItem     : function(model) {
 
                 var tagItem = new Libary.TagItem({model:model});
-                    tagItem.$el.appendTo(this.$el);
+                    tagItem.$el.appendTo(this.$el.find('.content'));
                     tagItem.render();
             },
 
@@ -280,7 +284,7 @@
                 var that = this;
 
                     that.listenTo(that.collection, 'reset', function() {
-                        that.$el.html('');
+                        that.$el.find('.content').html('');
                     });
 
                     that.listenTo(that.collection, 'destroy', function() {
@@ -301,15 +305,20 @@
             }
         });
 
-
-        Libary.ListItem = Backbone.View.extend({
+        Libary.VideoListItem = Backbone.View.extend({
 
             events      : {
+
+                'click' : function() {
+                    var win = window.open(this.model.get('url'), '_blank');
+                        win.focus();
+                },
 
                 'click .addTag' : function() {
                     new Libary.TagWidget({
                         model   : this.model
                     });
+                    return false;
                 },
 
                 'click .tags .delete' : function(events) {
@@ -318,35 +327,32 @@
                         tags.splice($(events.target).parent().attr('class').split(' ')[0], 1);
 
                     this.model.save('tags', tags);
+                    return false;
                 },
 
-                'click .edit' : function() {
-                    new Libary.EditWidget({
-                        model : this.model
-                    });
-                },
 
                 'click .control .delete' : function() {
                     new Libary.DeleteWidget({
                         model : this.model
                     });
+                    return false;
                 },
 
-                'click .name' : function() {
-                    var win = window.open(this.model.get('url'), '_blank');
-                        win.focus();
+                'click .control .edit' : function() {
+                    new Libary.EditWidget({
+                        model : this.model
+                    });
+                    return false;
                 }
             },
 
-            className   : 'list_item',
-
-            setFavicon  : function() {
-
+            className   : 'list_item video',
+            render      : function() {
                 var that = this;
-                var $img = this.$el.find('.favicon img');
-                if ($img.length === 1) {
-                    $img.attr('src', "http://g.etfv.co/" + that.model.get('url'));
-                }
+                    that.template({
+                        path    : './templates/pages/snippets/libary.listItemVideo.html',
+                        params  : this.model.attributes
+                    });
             },
 
             initialize  : function() {
@@ -364,44 +370,219 @@
                     that.listenTo(this.model, 'change', function() {
                         that.render();
                     });
-            },
-
-            render      : function() {
-
-                var that = this;
-
-                    that.template({
-                        path    : './templates/pages/snippets/libary.listItem.html',
-                        params  : _.extend({}, that.model.attributes, {
-                            dateFormated : Helper.timeConverter(that.model.get('created'))
-                        }),
-                        success : function() {
-                            that.setFavicon();
-                        }
-                    });
             }
         });
 
-        Libary.List = Backbone.View.extend({
+        Libary.VideoList = Backbone.View.extend({
 
-            el          : '#main.libary #libary',
+            el          : '#main.libary #libary #videos',
             addItem     : function(model) {
 
-                var listItem = new Libary.ListItem({model:model});
-                    listItem.$el.prependTo(this.$el);
+                var listItem = new Libary.VideoListItem({model:model});
+                    listItem.$el.prependTo(this.$el.find('.content'));
                     listItem.render();
+            }
+        });
+
+
+        Libary.ImageListItem = Backbone.View.extend({
+
+            events      : {
+
+                'click' : function() {
+                    var win = window.open(this.model.get('url'), '_blank');
+                        win.focus();
+                },
+
+                'click .addTag' : function() {
+                    new Libary.TagWidget({
+                        model   : this.model
+                    });
+                    return false;
+                },
+
+                'click .tags .delete' : function(events) {
+
+                    var tags    = this.model.get('tags');
+                        tags.splice($(events.target).parent().attr('class').split(' ')[0], 1);
+
+                    this.model.save('tags', tags);
+                    return false;
+                },
+
+                'click .control .delete' : function() {
+                    new Libary.DeleteWidget({
+                        model : this.model
+                    });
+                    return false;
+                },
+
+                'click .control .edit' : function() {
+                    new Libary.EditWidget({
+                        model : this.model
+                    });
+                    return false;
+                }
+            },
+
+            className   : 'list_item image',
+            render      : function() {
+
+                var that = this;
+                    that.template({
+                        path    : './templates/pages/snippets/libary.listItemImage.html',
+                        params  : this.model.attributes
+                    });
             },
 
             initialize  : function() {
 
                 var that = this;
 
-                    that.listenTo(that.collection, 'reset', function() {
-                        that.$el.html('');
+                    that.listenTo(this.model, 'destroy', function() {
+                        that.remove();
                     });
 
+                    that.listenTo(this.model, 'sync', function() {
+                        that.render();
+                    });
+
+                    that.listenTo(this.model, 'change', function() {
+                        that.render();
+                    });
+            }
+        });
+
+        Libary.ImagesList = Backbone.View.extend({
+
+
+            el          : '#main.libary #libary #images',
+            addItem     : function(model) {
+
+                var listItem = new Libary.ImageListItem({model:model});
+                    listItem.$el.prependTo(this.$el.find('.content'));
+                    listItem.render();
+            }
+        });
+
+
+
+        Libary.LinkListItem = Backbone.View.extend({
+
+            events      : {
+
+                'click' : function() {
+                    var win = window.open(this.model.get('url'), '_blank');
+                        win.focus();
+                },
+
+                'click .addTag' : function() {
+                    new Libary.TagWidget({
+                        model   : this.model
+                    });
+                    return false;
+                },
+
+                'click .tags .delete' : function(events) {
+
+                    var tags    = this.model.get('tags');
+                        tags.splice($(events.target).parent().attr('class').split(' ')[0], 1);
+
+                    this.model.save('tags', tags);
+                    return false;
+                },
+
+                'click .control .delete' : function() {
+                    new Libary.DeleteWidget({
+                        model : this.model
+                    });
+                    return false;
+                },
+
+                'click .control .edit' : function() {
+                    new Libary.EditWidget({
+                        model : this.model
+                    });
+                    return false;
+                }
+            },
+
+            className   : 'list_item link',
+            render      : function() {
+
+                var params = _.extend({}, this.model.attributes, {
+                    dateFormated : Helper.timeConverter(this.model.get('created'))
+                });
+
+                var that = this;
+                    that.template({
+                        path    : './templates/pages/snippets/libary.listItemLink.html',
+                        params  : params
+                    });
+            },
+
+            initialize  : function() {
+
+                var that = this;
+
+                    that.listenTo(this.model, 'destroy', function() {
+                        that.remove();
+                    });
+
+                    that.listenTo(this.model, 'sync', function() {
+                        that.render();
+                    });
+
+                    that.listenTo(this.model, 'change', function() {
+                        that.render();
+                    });
+            }
+        });
+
+        Libary.LinkList = Backbone.View.extend({
+
+            el          : '#main.libary #libary #links',
+            addItem     : function(model) {
+
+                var listItem = new Libary.LinkListItem({model:model});
+                    listItem.$el.prependTo(this.$el.find('.content'));
+                    listItem.render();
+            }
+        });
+
+
+        Libary.List = Backbone.View.extend({
+
+            el          : '#main.libary #libary',
+            initialize  : function() {
+
+                var that = this;
+
+                    that.vLinksList     = new Libary.LinkList();
+                    that.vImagesist     = new Libary.ImagesList();
+                    that.vVideosList    = new Libary.VideoList();
+
                     that.listenTo(that.collection, 'add', function(model) {
-                        that.addItem(model);
+
+                        switch(model.get('type')) {
+
+                            case 'image': this.vImagesist.addItem(model); break;
+                            case 'video': this.vVideosList.addItem(model); break;
+
+                            default:
+                                this.vLinksList.addItem(model);
+                                break;
+                        }
+                    });
+
+                    that.listenTo(that.collection, 'sync', function() {
+                        console.log('link_list: ' + that.vLinksList.$el.find('.list_item').length);
+                    });
+
+                    that.listenTo(that.collection, 'reset', function() {
+                        that.vLinksList.$el.find('.content').html('');
+                        that.vImagesist.$el.find('.content').html('');
+                        that.vVideosList.$el.find('.content').html('');
                     });
 
                     that.collection.refresh();
@@ -438,7 +619,6 @@
                         that.vTags.setTagActive(tagName);
                         that.cList.refresh(filter);
                     });
-
             }
 
         });
