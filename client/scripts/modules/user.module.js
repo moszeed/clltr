@@ -46,6 +46,10 @@
             localStorage.clear();
         };
 
+        User.loggedInUser = function() {
+
+        };
+
         User.login = function() {
 
             return when.promise(function(resolve, reject) {
@@ -58,6 +62,4 @@
                 });
             });
         };
-
-        //exports.DropboxClient = DropboxClient;
 })();

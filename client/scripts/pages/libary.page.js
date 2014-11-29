@@ -275,7 +275,7 @@
             addItem     : function(model) {
 
                 var tagItem = new Libary.TagItem({model:model});
-                    tagItem.$el.appendTo(this.$el.find('.content'));
+                    tagItem.$el.appendTo(this.$el);
                     tagItem.render();
             },
 
@@ -284,7 +284,7 @@
                 var that = this;
 
                     that.listenTo(that.collection, 'reset', function() {
-                        that.$el.find('.content').html('');
+                        that.$el.html('');
                     });
 
                     that.listenTo(that.collection, 'destroy', function() {
@@ -304,6 +304,8 @@
                     that.collection.refresh();
             }
         });
+
+
 
         Libary.VideoListItem = Backbone.View.extend({
 
@@ -379,7 +381,7 @@
             addItem     : function(model) {
 
                 var listItem = new Libary.VideoListItem({model:model});
-                    listItem.$el.prependTo(this.$el.find('.content'));
+                    listItem.$el.prependTo(this.$el);
                     listItem.render();
             }
         });
@@ -460,7 +462,7 @@
             addItem     : function(model) {
 
                 var listItem = new Libary.ImageListItem({model:model});
-                    listItem.$el.prependTo(this.$el.find('.content'));
+                    listItem.$el.prependTo(this.$el);
                     listItem.render();
             }
         });
@@ -545,7 +547,7 @@
             addItem     : function(model) {
 
                 var listItem = new Libary.LinkListItem({model:model});
-                    listItem.$el.prependTo(this.$el.find('.content'));
+                    listItem.$el.prependTo(this.$el);
                     listItem.render();
             }
         });
@@ -575,14 +577,10 @@
                         }
                     });
 
-                    that.listenTo(that.collection, 'sync', function() {
-                        console.log('link_list: ' + that.vLinksList.$el.find('.list_item').length);
-                    });
-
                     that.listenTo(that.collection, 'reset', function() {
-                        that.vLinksList.$el.find('.content').html('');
-                        that.vImagesist.$el.find('.content').html('');
-                        that.vVideosList.$el.find('.content').html('');
+                        that.vLinksList.$el.html('');
+                        that.vImagesist.$el.html('');
+                        that.vVideosList.$el.html('');
                     });
 
                     that.collection.refresh();

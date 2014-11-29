@@ -1,6 +1,9 @@
 @import "normalize.less";
 @import "main.less";
 
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+@import url(https://fonts.googleapis.com/css?family=Sarina);
+
 * {
     box-sizing: border-box;
 }
@@ -14,6 +17,7 @@ html, body {
     width       : 100%;
     height      : 100%;
     overflow    : hidden;
+    font-family     : 'Roboto', sans-serif;
 }
 
 #head {
@@ -21,12 +25,22 @@ html, body {
     width               : 100%;
     height              : 35px;
     background-color    : #282828;
-    border-bottom       : 1px solid #A0A0A0;
+
+    #logo {
+        font-family: 'Sarina', cursive;
+        top     : 10px;
+        left    : 20px;
+        font-wight : 130%;
+        color : #FFFFFF;
+        position : absolute;
+    }
 
     #logout {
 
         position : absolute;
-        right    : 50px;
+        top      : 10px;
+        font-size : 80%;
+        right    : 20px;
         color    : #DDDDDD;
 
         &:hover {
@@ -38,7 +52,7 @@ html, body {
     #addUrl {
 
         position    : absolute;
-        left        : 200px;
+        left        : 150px;
         font-size   : 80%;
         top         : 6px;
 
@@ -57,11 +71,12 @@ html, body {
 
         input {
             padding : 2px 10px 3px 10px;
-            width : 200px;
+            width : 500px;
         }
     }
 
 }
+
 
 #tags {
 
@@ -69,13 +84,13 @@ html, body {
     top             : 35px;
     left            : 0;
     bottom          : 0;
-    width           : 200px;
-    border-right    : 1px solid #DEDEDE;
-
-    .content {
-        overflow-y      : auto;
-        height          : 95%;
-    }
+    width           : 150px;
+    font-size       : 90%;
+    padding-top      : 20px;
+    background-color : #474747;
+    color           : #CCCCCC;
+    overflow-y       : auto;
+    border-right     : 1px solid #333333;
 
     .tag_item {
 
@@ -90,10 +105,10 @@ html, body {
             position    : absolute;
             display     : none;
             right       : 10px;
-            color       : #DEDEDE;
+            color       : #AAAAAA;
 
             &:hover {
-                color : #444444;
+                color : #EFEFEF;
                 cursor:pointer;
             }
 
@@ -128,7 +143,7 @@ html, body {
 
     position        : absolute;
     top             : 35px;
-    left            : 200px;
+    left            : 150px;
     right           : 0;
     bottom          : 0;
 
@@ -141,6 +156,22 @@ html, body {
         border-bottom   : 1px solid #CCCCCC;
     }
 
+
+    #videos,
+    #images,
+    #links {
+
+        overflow-y      : scroll;
+        -webkit-overflow-scrolling: touch;
+        padding-top     : 15px;
+        padding-bottom  : 60px;
+
+        -webkit-box-shadow: inset 16px 11px 29px -13px rgba(135,135,135,1);
+        -moz-box-shadow: inset 16px 11px 29px -13px rgba(135,135,135,1);
+        box-shadow: inset 16px 11px 29px -13px rgba(135,135,135,1);
+    }
+
+
     #videos,
     #images {
 
@@ -148,15 +179,12 @@ html, body {
         top         : 0;
         bottom      : 0;
         width       : 300px;
-        border-left : 1px solid #A0A0A0;
 
         .control, .name, .favicon, .tags {
             visibility : hidden;
         }
 
         .list_item {
-
-            background-color: #DEDEDE;
 
             &:hover {
                 .control, .name, .favicon, .tags {
@@ -253,8 +281,98 @@ html, body {
         right           : 0;
         top             : 0;
         bottom          : 0;
-        border-left     : 1px solid #A0A0A0;
 
+        .list_item {
+
+            padding-left     : 25px;
+            padding-right    : 20px;
+            padding-top      : 10px;
+            padding-bottom   : 10px;
+
+            .name {
+                font-weight : bold;
+                margin-right : 20px;
+            }
+
+            .url {
+                font-size   : 70%;
+                color       : #A0A0A0;
+            }
+
+            .tags {
+
+                padding     : 2px 10px;
+                font-size   : 70%;
+
+                .tag {
+
+                    span {
+                        padding : 2px 5px 2px 5px;
+                    }
+
+                    &:hover {
+                        span.value {
+                            background-color : #DEDEDE;
+                        }
+                    }
+
+                    span.delete {
+                        cursor              :pointer;
+                        background-color    : #DEDEDE;
+                    }
+                }
+
+                .addTag {
+                    font-weight : bold;
+                    font-size : 110%;
+                    background-color : #DEDEDE;
+                    cursor              :pointer;
+                    padding : 1px 7px 1px 7px;
+                }
+
+                .addTag,
+                .tag {
+                    display : inline-block;
+                    margin-right : 10px;
+                }
+            }
+
+            .description {
+                font-size : 90%;
+                padding : 5px 10px 10px 10px;
+            }
+
+            .control {
+
+                padding : 10px 10px;
+                font-size   : 80%;
+
+                .edit,
+                .delete {
+                    display : inline-block;
+                    margin-right : 20px;
+                    cursor : pointer;
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+
+            .extend {
+                display : none;
+                padding-top : 10px;
+                padding-bottom : 20px;
+            }
+
+            &:hover {
+                .extend {
+                    display : block;
+                }
+            }
+        }
+
+
+        /**
         .control {
             visibility: hidden;
         }
@@ -340,29 +458,12 @@ html, body {
                 }
             }
         }
-
+        **/
     }
 }
 
 
-#tags,
-#libary {
 
-    h3 {
-        padding-top      : 8px;
-        padding-left     : 30px;
-        color            : #DEDEDE;
-        margin           : 0;
-        font-size        : 90%;
-        height           : 5%;
-        border-bottom    : 1px solid #DEDEDE;
-    }
-
-    .content {
-        overflow-y      : scroll;
-        height          : 95%;
-    }
-}
 
 
 #impressum {
