@@ -14,6 +14,24 @@
     var Helper  = require('../modules/helper.module.js');
 
 
+    function isElementInViewport (el) {
+
+        //special bonus for those using jQuery
+        if (typeof jQuery === "function" && el instanceof jQuery) {
+            el = el[0];
+        }
+
+        var rect = el.getBoundingClientRect();
+
+        return (
+            rect.top >= -100 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + 200 && /*or $(window).height() */
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+        );
+    }
+
+
     var Libary = module.exports;
 
         Libary.Events = _.extend({}, Backbone.Events);
@@ -306,6 +324,100 @@
         });
 
 
+        Libary.AudioListItem = Backbone.View.extend({
+
+            events      : {
+
+                'click .name' : function() {
+                    var win = window.open(this.model.get('url'), '_blank');
+                        win.focus();
+                },
+
+                'click .extend_me' : function() {
+                    var $extend = this.$el.find('.extend');
+                    if ($extend.is(':visible')) {
+                        $extend.css('display', 'none');
+                    } else {
+                        $extend.css('display', 'block');
+                    }
+                },
+
+                'click .addTag' : function() {
+                    new Libary.TagWidget({
+                        model   : this.model
+                    });
+                    return false;
+                },
+
+                'click .tags .delete' : function(events) {
+
+                    var tags    = this.model.get('tags');
+                        tags.splice($(events.target).parent().attr('class').split(' ')[0], 1);
+
+                    this.model.save('tags', tags);
+                    return false;
+                },
+
+
+                'click .control .delete' : function() {
+                    new Libary.DeleteWidget({
+                        model : this.model
+                    });
+                    return false;
+                },
+
+                'click .control .edit' : function() {
+                    new Libary.EditWidget({
+                        model : this.model
+                    });
+                    return false;
+                }
+            },
+
+            className   : 'list_item audio',
+            render      : function() {
+
+                var that = this;
+                    that.template({
+                        path    : './templates/pages/snippets/libary.listItemAudio.html',
+                        params  : this.model.attributes
+                    });
+            },
+
+            initialize  : function() {
+
+                var that = this;
+
+                    that.listenTo(this.model, 'destroy', function() {
+                        that.remove();
+                    });
+
+                    that.listenTo(this.model, 'sync', function() {
+                        that.render();
+                    });
+
+                    that.listenTo(this.model, 'change', function() {
+                        that.render();
+                    });
+            }
+        });
+
+        Libary.AudioList = Backbone.View.extend({
+
+
+            listItems  : [],
+
+            el          : '#main.libary #libary #audios',
+            addItem     : function(model) {
+
+                var listItem = new Libary.AudioListItem({model:model});
+                    listItem.$el.prependTo(this.$el);
+                    listItem.render();
+
+                    this.listItems.push(listItem);
+            }
+        });
+
 
         Libary.VideoListItem = Backbone.View.extend({
 
@@ -348,12 +460,36 @@
                 }
             },
 
+            loadSrcByUserViewPort : function() {
+
+                var that = this;
+                var $img = this.$el.find('.loader');
+
+                if ($img.length !== 0) {
+                    if (isElementInViewport(this.$el[0])) {
+
+                        var $nImg = $(document.createElement('img'));
+                            $nImg.addClass('content');
+                            $nImg.one('load', function() {
+                                $img.replaceWith($nImg);
+                            });
+
+                            $nImg.attr('src', $img.find('img').data('src'));
+                    }
+                }
+            },
+
             className   : 'list_item video',
             render      : function() {
                 var that = this;
                     that.template({
                         path    : './templates/pages/snippets/libary.listItemVideo.html',
-                        params  : this.model.attributes
+                        params  : _.extend({}, this.model.attributes, {
+                            'name_truncated' : Helper.truncate(this.model.get('name'), 100)
+                        }),
+                        success : function() {
+                            that.loadSrcByUserViewPort();
+                        }
                     });
             },
 
@@ -377,12 +513,33 @@
 
         Libary.VideoList = Backbone.View.extend({
 
+            scrollCounter : 0,
+            events      : {
+
+                "scroll" : function() {
+
+                    if (this.scrollCounter <= 10) {
+                        this.scrollCounter++;
+                        return;
+                    }
+
+                    this.scrollCounter = 0;
+                    _.each(this.listItems, function(item) {
+                        item.loadSrcByUserViewPort();
+                    });
+                }
+            },
+
+            listItems  : [],
+
             el          : '#main.libary #libary #videos',
             addItem     : function(model) {
 
                 var listItem = new Libary.VideoListItem({model:model});
                     listItem.$el.prependTo(this.$el);
                     listItem.render();
+
+                    this.listItems.push(listItem);
             }
         });
 
@@ -427,13 +584,37 @@
                 }
             },
 
+            loadSrcByUserViewPort : function() {
+
+                var that = this;
+                var $img = this.$el.find('.loader');
+
+                if ($img.length !== 0) {
+                    if (isElementInViewport(this.$el[0])) {
+
+                        var $nImg = $(document.createElement('img'));
+                            $nImg.addClass('content');
+                            $nImg.one('load', function() {
+                                $img.replaceWith($nImg);
+                            });
+
+                            $nImg.attr('src', $img.find('img').data('src'));
+                    }
+                }
+            },
+
             className   : 'list_item image',
             render      : function() {
 
                 var that = this;
                     that.template({
                         path    : './templates/pages/snippets/libary.listItemImage.html',
-                        params  : this.model.attributes
+                        params  : _.extend({}, this.model.attributes, {
+                            'name_truncated' : Helper.truncate(this.model.get('name'), 100)
+                        }),
+                        success : function() {
+                            that.loadSrcByUserViewPort();
+                        }
                     });
             },
 
@@ -457,13 +638,34 @@
 
         Libary.ImagesList = Backbone.View.extend({
 
+            scrollCounter : 0,
+            events      : {
+
+                "scroll" : function() {
+
+                    if (this.scrollCounter <= 10) {
+                        this.scrollCounter++;
+                        return;
+                    }
+
+                    this.scrollCounter = 0;
+                    _.each(this.listItems, function(item) {
+                        item.loadSrcByUserViewPort();
+                    });
+                }
+            },
+
+            listItems  : [],
 
             el          : '#main.libary #libary #images',
             addItem     : function(model) {
 
+                var that = this;
                 var listItem = new Libary.ImageListItem({model:model});
                     listItem.$el.prependTo(this.$el);
                     listItem.render();
+
+                this.listItems.push(listItem);
             }
         });
 
@@ -474,6 +676,15 @@
             events      : {
 
                 'click' : function() {
+                    var $extend = $(this.$el).find('.extend');
+                    if ($extend.is(':visible')) {
+                        $extend.css('display', 'none');
+                    } else {
+                        $extend.css('display', 'block');
+                    }
+                },
+
+                'click .url' : function() {
                     var win = window.open(this.model.get('url'), '_blank');
                         win.focus();
                 },
@@ -542,18 +753,55 @@
         });
 
         Libary.LinkList = Backbone.View.extend({
-
+            listItems   : [],
             el          : '#main.libary #libary #links',
             addItem     : function(model) {
 
                 var listItem = new Libary.LinkListItem({model:model});
                     listItem.$el.prependTo(this.$el);
                     listItem.render();
+
+                    this.listItems.push(listItem);
             }
         });
 
 
         Libary.List = Backbone.View.extend({
+
+            showCategories : function() {
+
+
+                var all_empty = 0;
+
+                this.vLinksList.$el.css('display', 'inline-block');
+                if (this.vLinksList.listItems.length === 0) {
+                    this.vLinksList.$el.css('display', 'none');
+                    all_empty++;
+                }
+
+                this.vImagesList.$el.css('display', 'inline-block');
+                if (this.vImagesList.listItems.length === 0) {
+                    this.vImagesList.$el.css('display', 'none');
+                    all_empty++;
+                }
+
+                this.vVideosList.$el.css('display', 'inline-block');
+                if (this.vVideosList.listItems.length === 0) {
+                    this.vVideosList.$el.css('display', 'none');
+                    all_empty++;
+                }
+
+                this.vAudiosList.$el.css('display', 'inline-block');
+                if (this.vAudiosList.listItems.length === 0) {
+                    this.vAudiosList.$el.css('display', 'none');
+                    all_empty++;
+                }
+
+                this.$el.find('.no_content').css('display', 'none');
+                if (all_empty === 4) {
+                    this.$el.find('.no_content').css('display', 'block');
+                }
+            },
 
             el          : '#main.libary #libary',
             initialize  : function() {
@@ -561,15 +809,20 @@
                 var that = this;
 
                     that.vLinksList     = new Libary.LinkList();
-                    that.vImagesist     = new Libary.ImagesList();
+                    that.vImagesList    = new Libary.ImagesList();
                     that.vVideosList    = new Libary.VideoList();
+                    that.vAudiosList    = new Libary.AudioList();
+
+
+                    that.listenTo(that.collection, 'sync', this.showCategories);
 
                     that.listenTo(that.collection, 'add', function(model) {
 
                         switch(model.get('type')) {
 
-                            case 'image': this.vImagesist.addItem(model); break;
+                            case 'image': this.vImagesList.addItem(model); break;
                             case 'video': this.vVideosList.addItem(model); break;
+                            case 'audio': this.vAudiosList.addItem(model); break;
 
                             default:
                                 this.vLinksList.addItem(model);
@@ -579,8 +832,9 @@
 
                     that.listenTo(that.collection, 'reset', function() {
                         that.vLinksList.$el.html('');
-                        that.vImagesist.$el.html('');
+                        that.vImagesList.$el.html('');
                         that.vVideosList.$el.html('');
+                        that.vAudiosList.$el.html('');
                     });
 
                     that.collection.refresh();
@@ -606,6 +860,12 @@
 
                     that.listenTo(Libary.Events, 'refresh', function(tagName) {
 
+
+                        that.vList.vImagesList.listItems    = [];
+                        that.vList.vVideosList.listItems    = [];
+                        that.vList.vLinksList.listItems     = [];
+                        that.vList.vAudiosList.listItems    = [];
+
                         var filter = {};
                         if (tagName !== void 0 &&
                             tagName !== 'all') {
@@ -614,11 +874,11 @@
                             };
                         }
 
+                        that.vList.showCategories();
                         that.vTags.setTagActive(tagName);
                         that.cList.refresh(filter);
                     });
             }
-
         });
 
 })();

@@ -13,16 +13,24 @@
             if (port !== '') {
                 port = ":" + port;
             }
-        
+
             var pathname = parser.pathname;
             if (pathname !== '') {
                 pathname = "/" + pathname;
-            } 
+            }
 
             return  parser.protocol + "//" +
                     parser.hostname + port + parser.pathname;
         };
 
+        Helper.truncate = function(string, length) {
+
+            if (string.length <= length) {
+                return string;
+            }
+
+            return string.substring(0, length) + '..';
+        };
 
         Helper.timeConverter = function(timestamp) {
 

@@ -16,7 +16,7 @@ html, body {
 #main {
     width       : 100%;
     height      : 100%;
-    overflow    : hidden;
+    overflow       : hidden;
     font-family     : 'Roboto', sans-serif;
 }
 
@@ -134,7 +134,6 @@ html, body {
     padding : 20px;
 
     img {
-
         box-shadow : 1px 10px 10px #444444;
     }
 }
@@ -146,319 +145,204 @@ html, body {
     left            : 150px;
     right           : 0;
     bottom          : 0;
+    white-space     : nowrap;
+    overflow-y      : hidden;
+    overflow-x      : scroll;
 
-    .list_item {
-
-        position        : relative;
-        padding-bottom  : 0;
-        cursor          : default;
-
-        border-bottom   : 1px solid #CCCCCC;
+    .no_content {
+        padding : 50px;
+        display : none;
     }
 
+    .category {
 
-    #videos,
-    #images,
-    #links {
-
+        display         : none;
+        vertical-align  : top;
+        white-space     : normal;
         overflow-y      : scroll;
-        -webkit-overflow-scrolling: touch;
-        padding-top     : 15px;
-        padding-bottom  : 60px;
+        overflow-x      : hidden;
+        padding-bottom  : 100px;
 
-        -webkit-box-shadow: inset 16px 11px 29px -13px rgba(135,135,135,1);
-        -moz-box-shadow: inset 16px 11px 29px -13px rgba(135,135,135,1);
-        box-shadow: inset 16px 11px 29px -13px rgba(135,135,135,1);
-    }
+        height          : 100%;
+        width           : 300px;
+
+        border-right    : 1px solid #A0A0a0;
 
 
-    #videos,
-    #images {
-
-        position    : absolute;
-        top         : 0;
-        bottom      : 0;
-        width       : 300px;
-
-        .control, .name, .favicon, .tags {
-            visibility : hidden;
-        }
 
         .list_item {
 
-            &:hover {
-                .control, .name, .favicon, .tags {
-                    visibility: visible;
-                }
-            }
-        }
+            position        : relative;
+            padding-bottom  : 0;
+            cursor          : default;
 
-        img {
-            border  : 0 none;
-            margin  : 10px 5% 10px 5%;
-            width   : 90%;
-        }
+            background-color : #FAFAFA;
+            border-bottom   : 1px solid #CCCCCC;
+            border-left     : 1px solid #A0A0A0;
+            border-right    : 1px solid #A0A0A0;
+            min-height      : 200px;
 
-        .favicon {
-
-            position    : absolute;
-            top         : 4px;
-            left        : 7%;
-            z-index     : 1;
+            audio,
+            video,
             img {
-                border  : 0;
-                width   : 20px;
-                height  : 20px;
+
+                margin      : 5% 2% 15% 2%;
+                width       : 96%;
+                border      : 1px solid #333333;
+                box-shadow  : 2px 2px 2px #444444;
             }
-        }
 
-        .name {
-            position    : absolute;
-            top         : 10px;
-            left        : 5%;
-            right       : 5%;
-            padding     : 5px 5px 5px 40px;
-            background-color : #111111;
-            opacity : 0.8;
-            color : #EEEEEE;
-            font-size : 80%;
-        }
-
-        .tags {
-            position    : absolute;
-            bottom      : 40px;
-            left        : 5%;
-            right       : 5%;
-            padding     : 3px;
-            background-color : #111111;
-            opacity : 0.8;
-            color : #EEEEEE;
-            font-size : 80%;
-
-        }
-
-        .control {
-
-            position    : absolute;
-            bottom      : 10px;
-            left        : 5%;
-            right       : 5%;
-            height      : 30px;
-            padding     : 5px 10px 2px 10px;
-            background-color : #111111;
-            opacity : 0.8;
-            color : #EEEEEE;
-            font-size : 80%;
-
-            .edit, .delete {
-                cursor : pointer;
-                margin-right : 10px;
-                display : inline-block;
-
-                &:hover {
-                    text-decoration: underline;
-                }
+            audio {
+                border      : 0 none;
             }
-        }
-    }
 
-    #images {
-
-        left    : 0;
-        width   : 250px;
-
-        .list_item {
-            min-height : 150px;
-        }
-    }
-
-    #videos { left : 250px; }
-
-    #links {
-
-        position        : absolute;
-        left            : 550px;
-        right           : 0;
-        top             : 0;
-        bottom          : 0;
-
-        .list_item {
-
-            padding-left     : 25px;
-            padding-right    : 20px;
-            padding-top      : 10px;
-            padding-bottom   : 10px;
 
             .name {
-                font-weight : bold;
-                margin-right : 20px;
+                padding     : 5% 5% 10% 5%;
+                font-size   : 90%;
+                width       : 96%;
             }
 
-            .url {
-                font-size   : 70%;
-                color       : #A0A0A0;
-            }
-
-            .tags {
-
-                padding     : 2px 10px;
-                font-size   : 70%;
-
-                .tag {
-
-                    span {
-                        padding : 2px 5px 2px 5px;
-                    }
-
-                    &:hover {
-                        span.value {
-                            background-color : #DEDEDE;
-                        }
-                    }
-
-                    span.delete {
-                        cursor              :pointer;
-                        background-color    : #DEDEDE;
-                    }
-                }
-
-                .addTag {
-                    font-weight : bold;
-                    font-size : 110%;
-                    background-color : #DEDEDE;
-                    cursor              :pointer;
-                    padding : 1px 7px 1px 7px;
-                }
-
-                .addTag,
-                .tag {
-                    display : inline-block;
-                    margin-right : 10px;
-                }
-            }
-
+            .url,
             .description {
-                font-size : 90%;
-                padding : 5px 10px 10px 10px;
-            }
-
-            .control {
-
-                padding : 10px 10px;
+                padding     : 1% 5% 10% 5%;
                 font-size   : 80%;
-
-                .edit,
-                .delete {
-                    display : inline-block;
-                    margin-right : 20px;
-                    cursor : pointer;
-                    &:hover {
-                        text-decoration: underline;
-                    }
-                }
+                width       : 96%;
             }
 
             .extend {
                 display : none;
-                padding-top : 10px;
-                padding-bottom : 20px;
             }
 
-            &:hover {
-                .extend {
-                    display : block;
-                }
-            }
-        }
-
-
-        /**
-        .control {
-            visibility: hidden;
-        }
-
-        .list_item {
-
-            padding-left     : 25px;
-            padding-bottom   : 40px;
-
-            &:hover {
-                .control {
-                    visibility: visible;
-                }
-            }
-        }
-
-        .name {
-            width   : 100%;
-            opacity : 0.8;
-            color : #130202;
-            font-weight : bold;
-            font-size : 100%;
-            padding : 10px 10px 5px 10px;
-        }
-
-        .tags {
-
-            padding     : 2px 10px;
-            font-size   : 70%;
-
-            .tag {
-
-                span {
-                    padding : 2px 5px 2px 5px;
-                }
+            .extend_me {
+                font-size : 80%;
+                color : #A0A0a0;
+                width : 100%;
+                margin-top : 5px;
+                text-align :center;
+                border : 1px dotted #DEDEDE;
+                background-color : #EFEFEF;
 
                 &:hover {
-                    span.value {
-                        background-color : #DEDEDE;
+                    cursor: pointer;
+                    background-color: transparent;
+                }
+            }
+
+            .loader {
+
+                .hint {
+                    font-weight : bold;
+                }
+
+                .name {
+                    padding     : 20px 40px;
+                    color       : #A0A0A0;
+                    font-size   : 70%;
+                }
+
+                img {
+                    border      : 0 none;
+                    box-shadow  : none;
+                    margin      : 20% 30% 5px 30%;
+                    width       : 40%;
+                }
+            }
+
+            .control {
+
+                position    : absolute;
+                bottom      : 10px;
+                left        : 10px;
+                font-size   : 80%;
+
+                .edit,
+                .delete {
+                    display     : inline-block;
+                    width       : 40px;
+                    text-align  : center;
+                    color       : #DEDEDE;
+
+                    &:hover {
+                        cursor  : pointer;
+                        color   : #A0A0A0;
+                    }
+                }
+            }
+
+            .tags {
+
+                position : absolute;
+                right    : 0;
+                top      : 0;
+                bottom   : 0;
+
+                padding             : 10px;
+                background-color    : #444444;
+                width               : 40%;
+                opacity             : 0;
+
+                -webkit-transition  : opacity 1s;
+                transition          : opacity 1s;
+
+                .tag {
+                    font-size : 70%;
+                    background-color : #DEDEDE;
+                    padding : 3px;
+                }
+
+                .addTag {
+                    position : absolute;
+                    bottom   : 5px;
+                    left     : 5px;
+                    right    : 5px;
+                    width    : 90%;
+                    border  : 0 none;
+                    font-size : 80%;
+
+                    &:hover {
+                        background-color: #DEDEDE;
                     }
                 }
 
-                span.delete {
-                    cursor              :pointer;
-                    background-color    : #DEDEDE;
-                }
-            }
-
-            .addTag {
-                font-weight : bold;
-                font-size : 110%;
-                background-color : #DEDEDE;
-                cursor              :pointer;
-                padding : 1px 7px 1px 7px;
-            }
-
-            .addTag,
-            .tag {
-                display : inline-block;
-                margin-right : 10px;
-            }
-        }
-
-        .description {
-            font-size : 80%;
-            padding : 5px 10px 10px 10px;
-        }
-
-        .control {
-
-            position    : absolute;
-            left        : 35px;
-            bottom      : 20px;
-            font-size   : 80%;
-
-            .edit,
-            .delete {
-                display : inline-block;
-                margin-right : 20px;
-
                 &:hover {
-                    text-decoration: underline;
+                    opacity : 0.8;
                 }
             }
         }
-        **/
+
+        &#links {
+
+            width : 500px;
+
+            .name {
+                padding-bottom : 10px;
+            }
+
+            .list_item {
+                min-height : 130px;
+            }
+        }
+
+        &#audios {
+
+
+            width   : 400px;
+
+            img.artwork {
+                position    : absolute;
+                left        : 2%;
+                top         : 5px;
+                width       : 50px;
+            }
+
+            .name {
+                padding-bottom : 0;
+                margin-left : 60px;
+                width       : 80%;
+                min-height  : 90px;
+            }
+        }
     }
 }
 

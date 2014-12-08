@@ -1,3 +1,10 @@
+<div class="loader">
+    <img src="./images/ajax-loader.gif" data-src="<%= name%>">
+    <div class="name">
+        <span class="hint">loading Image from Source:&nbsp;</span>
+        <span><%= name_truncated%></span></div>
+</div>
+
 <div class="tags">
     <% _.each(tags, function(tag, key) { %>
         <div class="<%= key%> tag">
@@ -5,12 +12,9 @@
             <span class="value"><%= tag%></span>
         </div>
     <% }); %>
-    <div class="addTag">&#43;</div>
+    <button class="addTag">&#43; add Tag</button>
 </div>
-<div class="data">
-    <div class="favicon"><img src="http://g.etfv.co/<%= url%>"></div>
-    <img src="<%= name%>">
-</div>
+
 <div class="control">
     <div class="edit">edit</div>
     <div class="delete">delete</div>

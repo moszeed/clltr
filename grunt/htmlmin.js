@@ -21,7 +21,8 @@ module.exports = {
         './dist/templates/pages/snippets/libary.listItemLink.html'  : './client/templates/pages/snippets/libary.listItemLink.tpl',
         './dist/templates/pages/snippets/libary.listItemImage.html' : './client/templates/pages/snippets/libary.listItemImage.tpl',
         './dist/templates/pages/snippets/libary.listItemVideo.html' : './client/templates/pages/snippets/libary.listItemVideo.tpl',
+        './dist/templates/pages/snippets/libary.listItemAudio.html' : './client/templates/pages/snippets/libary.listItemAudio.tpl',
         './dist/templates/pages/snippets/libary.tagItem.html'       : './client/templates/pages/snippets/libary.tagItem.tpl'
     }
 }
-}
+};

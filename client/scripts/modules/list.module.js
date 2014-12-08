@@ -19,14 +19,18 @@
 
             store       : 'list',
             defaults    : {
-                url         : null,
-                name        : null,
-                type        : null,
-                tags        : null,
-                description : null,
+                url             : null,
+                name            : null,
+                type            : null,
+                tags            : null,
+                height          : null,
+                provider        : null,
+                providerUrl     : null,
+                media_id        : null,
+                description     : null,
                 previewImageUrl : null,
-                favicon_url : null,
-                created     : null
+                favicon_url     : null,
+                created         : null
             },
 
             fetchData : function() {
@@ -42,6 +46,8 @@
                             name            : pageData.title || that.get('url'),
                             description     : pageData.description || '',
                             type            : pageData.type || null,
+                            provider        : pageData.provider_name,
+                            providerUrl     : pageData.provider_url,
                             previewImageUrl : null,
                             created         : Date.now()
                         };
@@ -60,12 +66,41 @@
                             }
 
                             if (pageData.media.type === 'photo') {
-                                params.type = 'image';
+                                params.type     = 'image';
+                                params.height   = pageData.media.height || null;
+                            }
+
+                            if (pageData.media.type === 'rich') {
+                                if (that.get('url').indexOf('soundcloud') !== -1) {
+                                    params.type = 'audio';
+                                }
                             }
                         }
 
-                        that.save(params);
+                        if (pageData.type === 'image') {
 
+                            if (pageData.media.type === 'photo') {
+                                params.type     = 'image';
+                                params.height   = pageData.media.height || null;
+                            }
+                        }
+
+                        if (that.get('url').indexOf('soundcloud') !== -1) {
+
+                            $.get('http://api.soundcloud.com/resolve.json?url='+
+                                that.get('url')+'/tracks&client_id=c19250610bdd548e84df2c91e09156c9' , function (result) {
+
+                                    params.media_id         = result.id             || null;
+                                    params.previewImageUrl  = result.artwork_url    || null;
+                                    that.save(params);
+                                    resolve();
+                                });
+
+
+                            return;
+                        }
+
+                        that.save(params);
                         resolve();
                     };
 
