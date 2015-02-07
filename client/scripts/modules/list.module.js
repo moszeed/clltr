@@ -5,24 +5,23 @@
     var $               = require('jquery');
     var _               = require('underscore');
     var when            = require('when');
-    var Backbone        = require('backbone');
-        Backbone.$      = $;
 
     var User            = require('./user.module.js');
-        Backbone.setDropboxClient(User.getDbClient());
+
+    var Backbone        = require('backbone');
+        Backbone.setClient(User.getDbClient());
+
 
     var List = module.exports;
-
         List.Model = Backbone.Model.extend({
 
             embedlyUrl  : "https://api.embed.ly/1/extract?key=35550e76c44048aa92ca559f77d2fd1e&format=json&url=",
-
-            store       : 'list',
             defaults    : {
+
                 url             : null,
                 name            : null,
                 type            : null,
-                tags            : null,
+                tags            : [],
                 height          : null,
                 provider        : null,
                 providerUrl     : null,
@@ -33,81 +32,118 @@
                 created         : null
             },
 
-            fetchData : function() {
+            validate    : function() {
+
+                return !this.store;
+            },
+
+            formatData  : function(pageData) {
+
+                pageData = pageData || {};
+
+                var params = {
+                    name            : pageData.title || this.get('url'),
+                    description     : pageData.description || '',
+                    type            : pageData.type || null,
+                    provider        : pageData.provider_name,
+                    providerUrl     : pageData.provider_url,
+                    previewImageUrl : null,
+                    favicon_url     : pageData.favicon_url || null,
+                    created         : Date.now()
+                };
+
+                //sort other media types
+                if (pageData.media && pageData.type === 'html') {
+
+                    if (pageData.media.type === 'video') {
+
+                        params.type = 'video';
+
+                        //get preview url
+                        if (pageData.images.length !== 0) {
+                            params.previewImageUrl = pageData.images[0].url;
+                        }
+                    }
+
+                    if (pageData.media.type === 'photo') {
+                        params.type     = 'image';
+                        params.height   = pageData.media.height || null;
+                    }
+
+                    if (pageData.media.type === 'rich') {
+                        if (this.get('url').indexOf('soundcloud') !== -1) {
+                            params.type = 'audio';
+                        }
+                    }
+                }
+
+                if (pageData.type === 'image') {
+
+                    if (pageData.media.type === 'photo') {
+                        params.type     = 'image';
+                        params.height   = pageData.media.height || null;
+                    }
+                }
+
+                if (params.type === 'html') {
+                    params.type = 'link';
+                }
+
+                return params;
+            },
+
+            setSoundcloudData : function() {
 
                 var that = this;
+
+                if (that.get('url').indexOf('soundcloud') === -1) {
+                    return true;
+                }
+
+                return when.promise(function(resolve, reject) {
+                    $.get('http://api.soundcloud.com/resolve.json?url='+
+                        that.get('url') + '/tracks&client_id=c19250610bdd548e84df2c91e09156c9' , function (result) {
+
+                            that.set({
+                                media_id        : result.id             || null,
+                                previewImageUrl : result.artwork_url    || null
+                            });
+
+                            resolve();
+                        });
+                });
+            },
+
+            refresh   : function() {
+
+                var that = this;
+
                 return when.promise(function(resolve, reject) {
 
-                    var setData = function(pageData) {
-
-                        pageData = pageData || {};
-
-                        var params = {
-                            name            : pageData.title || that.get('url'),
-                            description     : pageData.description || '',
-                            type            : pageData.type || null,
-                            provider        : pageData.provider_name,
-                            providerUrl     : pageData.provider_url,
-                            previewImageUrl : null,
-                            created         : Date.now()
-                        };
-
-                        //sort other media types
-                        if (pageData.media && pageData.type === 'html') {
-
-                            if (pageData.media.type === 'video') {
-
-                                params.type = 'video';
-
-                                //get preview url
-                                if (pageData.images.length !== 0) {
-                                    params.previewImageUrl = pageData.images[0].url;
-                                }
-                            }
-
-                            if (pageData.media.type === 'photo') {
-                                params.type     = 'image';
-                                params.height   = pageData.media.height || null;
-                            }
-
-                            if (pageData.media.type === 'rich') {
-                                if (that.get('url').indexOf('soundcloud') !== -1) {
-                                    params.type = 'audio';
-                                }
-                            }
-                        }
-
-                        if (pageData.type === 'image') {
-
-                            if (pageData.media.type === 'photo') {
-                                params.type     = 'image';
-                                params.height   = pageData.media.height || null;
-                            }
-                        }
-
-                        if (that.get('url').indexOf('soundcloud') !== -1) {
-
-                            $.get('http://api.soundcloud.com/resolve.json?url='+
-                                that.get('url')+'/tracks&client_id=c19250610bdd548e84df2c91e09156c9' , function (result) {
-
-                                    params.media_id         = result.id             || null;
-                                    params.previewImageUrl  = result.artwork_url    || null;
-                                    that.save(params);
-                                    resolve();
-                                });
-
-
-                            return;
-                        }
-
-                        that.save(params);
-                        resolve();
-                    };
-
                     $.ajax({
-                        url     : that.embedlyUrl + that.get('url'),
-                        error   : setData,
-                        success : setData
+                        url: that.embedlyUrl + that.get('url'),
+                        success : function(data) {
+
+                            //set formatted data
+                            that.set(that.formatData(data));
+
+                            var promises = [];
+
+                            //try to get soundcloud data
+                            if (that.get('type') === 'audio') {
+                                promises.push(that.setSoundcloudData());
+                            }
+
+                            when.all(promises)
+                                .done(function() {
+                                    resolve(data);
+                                });
+                        },
+                        error : function(err) {
+                            console.log('fail to load from: ' + that.get('url'));
+                            console.log('ERR: ', err);
+                            resolve();
+                        }
                     });
                 });
             }
@@ -115,36 +151,48 @@
 
         List.Collection = Backbone.Collection.extend({
 
-            store       : 'list',
             model       : List.Model,
 
-            comparator  : 'name',
+            refresh     : function(filter) {
 
-            addByUrl    : function(url) {
+                var that = this;
 
-                var that  = this;
-                var model = new List.Model();
+                return when.promise(function(resolve, reject) {
 
-                if (url.substring(0, 'http'.length)    !== 'http' &&
-                    url.substring(0, 'https'.length)   !== 'https') {
-                    url = "https://" + url;
+                    that.reset();
+                    that.fetch({
+                        filter  : filter,
+                        update  : true,
+                        success : resolve,
+                        error   : reject
+                    });
+                });
+            },
+
+            initialize  : function(params) {
+
+                _.bindAll(this, 'refresh');
+
+                params = params || {};
+
+                if (!params.store) {
+                    throw new Error('no store name given');
                 }
 
-                model.set('url', url);
+                this.store = params.store;
 
-                return model.fetchData()
-                    .then(function() {
-                        that.add(model);
+                var that = this;
+                    that.on('add', function(model) {
+                        model.store = that.store;
                     });
             },
 
-            refresh : function(params) {
+            save : function() {
 
                 var that = this;
-                    that.reset();
-                    return that.fetch({
-                        filter  : params || void 0,
-                        update  : true
+                    that.each(function(model) {
+                        model.store = that.store;
+                        model.save();
                     });
             }
         });

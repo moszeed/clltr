@@ -4,12 +4,14 @@
 
 
     var $           = require('jquery');
+    var _           = require('underscore');
     var Backbone    = require('backbone');
         Backbone.$  = $;
 
     var User        = require('./user.module.js');
     var Main        = require('./main.module.js');
     var Dropbox     = require('dropbox');
+    var Delicious   = require('backbone_delicious');
 
     var Router      = {};
 

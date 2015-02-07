@@ -9,4 +9,4 @@ module.exports = function(grunt) {
     //shortcut
     grunt.registerTask('serve', ['concurrent:serve']);
 
-}
+};

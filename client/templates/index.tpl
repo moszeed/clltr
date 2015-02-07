@@ -11,8 +11,7 @@
         <link rel="icon" href="favicon.ico" type="image/x-icon">
 
         <link rel="stylesheet" href="style/app.css">
-
-        <script src="./scripts/libarys.js"></script>
+        <script src="./scripts/libarys.min.js"></script>
     </head>
 
     <body>
@@ -22,9 +21,16 @@
         <div id="impressumLink">Contact details / Disclaimer</div>
 
         <div id="main"></div>
+
+        <div id="widget">
+            <div id="widgetOverlay"></div>
+            <div id="widgetContent">Test Test</div>
+        </div>
+
+
+
     </body>
 
-    <script src="./scripts/app.js"></script>
-
+    <script src="./scripts/app.min.js"></script>
 </html>
 

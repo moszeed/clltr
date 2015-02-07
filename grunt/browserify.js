@@ -1,15 +1,10 @@
-//load shims, and add optional requires
-var shims = require("../shims"),
-    sharedModules = Object.keys(shims).concat([
-        //"polyfill-webcomponents"
-    ]);
-
 module.exports = {
 
     libarys : {
         src     : [
-			'client/scripts/libs/backbone.template.js',
-            'client/scripts/libs/backbone.dropbox.js'
+            'backbone_dropbox',
+            'backbone_delicious',
+            'backbone_template'
         ],
         dest    : './dist/scripts/libarys.js',
         options : {
@@ -19,6 +14,11 @@ module.exports = {
                 'jquery',
                 'when',
                 'dropbox'
+            ],
+            alias   : [
+                './client/scripts/libs/backbone.dropbox.js:backbone_dropbox',
+                './client/scripts/libs/backbone.delicious.js:backbone_delicious',
+                './client/scripts/libs/backbone.template.js:backbone_template'
             ]
         }
     },
@@ -37,6 +37,9 @@ module.exports = {
             ],
             external	: [
                 'backbone',
+                'backbone_dropbox',
+                'backbone_delicious',
+                'backbone_template',
                 'underscore',
                 'jquery',
                 'when',

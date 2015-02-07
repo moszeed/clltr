@@ -11,7 +11,9 @@
     "dropbox": "^0.10.3",
     "jquery": "^2.1.1",
     "underscore": "^1.7.0",
-    "when": "^3.5.0"
+    "when": "^3.5.0",
+    "restify": "^2.8.4",
+    "request": "^2.51.0"
   },
   "browserify-shim": "./shims.js",
   "browserify": {

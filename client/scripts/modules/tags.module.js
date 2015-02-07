@@ -3,9 +3,11 @@
     "use strict";
 
     var User            = require('./user.module.js');
+
+    var when            = require('when');
     var _               = require('underscore');
     var Backbone        = require('backbone');
-        Backbone.setDropboxClient(User.getDbClient());
+        Backbone.setClient(User.getDbClient());
 
     var Tags = module.exports;
 
@@ -14,8 +16,7 @@
             store       : 'tags',
             defaults    : {
                 name        : null,
-                description : null,
-                totalCount  : null
+                description : null
             }
         });
 
@@ -23,20 +24,27 @@
 
             store       : 'tags',
             model       : Tags.Model,
+
             comparator  : 'name',
 
-            refresh : function() {
+            getAsList   : function() {
+                return this.map(function(tagItem) {
+                    return tagItem.attributes;
+                });
+            },
+
+            refresh     : function() {
 
                 var that = this;
                     that.reset();
 
-                return this.fetch({
-                    update  : true,
-                    success : function() {
-                        that.unshift({
-                            name : 'all'
-                        });
-                    }
+                return when.promise(function(resolve, reject) {
+                    that.fetch({
+                        update  : true,
+                        success : function() {
+                            resolve();
+                        }
+                    });
                 });
             }
         });

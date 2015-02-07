@@ -5,6 +5,7 @@
     var $               = require('jquery');
     var _               = require('underscore');
     var when            = require('when');
+
     var Backbone        = require('backbone');
         Backbone.$      = $;
 
@@ -16,6 +17,7 @@
         App.View = Backbone.View.extend({
 
             initialize : function() {
+
                 $('#impressumLink').on('click', function() {
                     Router.changePage('impressum');
                 });

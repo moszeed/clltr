@@ -7,6 +7,10 @@
     var Backbone    = require('backbone');
         Backbone.$  = $;
 
+    //get template functions
+    require('backbone_template');
+
+
     var Main = module.exports;
 
         Main.View = Backbone.View.extend({

@@ -2,19 +2,20 @@
 
     "use strict";
 
-    var Dropbox = require('dropbox');
+
     var when    = require('when');
     var Helper  = require('./helper.module.js');
 
-    var DropboxClient = new Dropbox.Client({
-            key     : "slx7xwupbtv0chg",
-            sandbox : true
+    var Dropbox     = require('backbone_dropbox');
+        Dropbox.init({
+            client  : { key : "slx7xwupbtv0chg" },
+            auth    : new Dropbox._Dropbox.AuthDriver.Popup({
+                receiverUrl     : Helper.getCurrentUrl(),
+                rememberUser    : true
+            })
         });
 
-        DropboxClient.authDriver(new Dropbox.AuthDriver.Popup({
-            receiverUrl     : Helper.getCurrentUrl(),
-            rememberUser    : true
-        }));
+    var Backbone    = Dropbox.Backbone;
 
 
     var User = module.exports;
@@ -25,12 +26,12 @@
                 throw new Error('not logged in');
             }
 
-            return DropboxClient;
+            return Dropbox._Client;
         };
 
         User.isLoggedIn = function() {
 
-            var isAuthenticated = DropboxClient.isAuthenticated();
+            var isAuthenticated = Dropbox._Client.isAuthenticated();
             if (!isAuthenticated) {
                 if (localStorage.getItem('alreadyAuthenticated')) {
                     User.login();
@@ -46,14 +47,11 @@
             localStorage.clear();
         };
 
-        User.loggedInUser = function() {
-
-        };
-
         User.login = function() {
 
             return when.promise(function(resolve, reject) {
-                DropboxClient.authenticate(function(error, client) {
+
+                Dropbox._Client.authenticate(function(error, client) {
                     if (error) reject(error);
                     else {
                         localStorage.setItem("alreadyAuthenticated", "true");

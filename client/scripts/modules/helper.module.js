@@ -25,6 +25,10 @@
 
         Helper.truncate = function(string, length) {
 
+            if (!string) {
+                return '';
+            }
+
             if (string.length <= length) {
                 return string;
             }
@@ -53,5 +57,13 @@
             return time;
         };
 
+        Helper.capitaliseFirstLetter = function(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        };
+
+        Helper.showError = function(err) {
+            console.log('ERR:', err);
+            throw new Error(err);
+        };
 
 })();

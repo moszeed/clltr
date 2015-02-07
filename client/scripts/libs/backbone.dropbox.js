@@ -24,7 +24,7 @@
     function _writeToFile(filename, fileContent) {
 
         var d = $.Deferred();
-        Backbone.dropboxClient.writeFile(filename, JSON.stringify(fileContent), function(error, stat) {
+        Main._Client.writeFile(filename, JSON.stringify(fileContent), function(error, stat) {
             if (error) d.reject(error);
             else {
                 d.resolve(stat);
@@ -64,7 +64,7 @@
                 if (tmp !== null) items = tmp;
             }
 
-            return _syncModel(model, items, options);
+            return options.success(items);
         }
 
         var search = {}, modelId = model.attributes[model.idAttribute];
@@ -125,7 +125,7 @@
             d.resolve();
         } else {
 
-            Backbone.dropboxClient.readFile(filename, function(error, fileContent) {
+            Main._Client.readFile(filename, function(error, fileContent) {
 
                 //extend and clear
                 contentCache[filename] = {
@@ -162,25 +162,67 @@
 
     function _syncModel(model, items, options) {
 
-        model.trigger('sync', model, items, options);
+        //model.trigger('sync', model, items, options);
         options.success(items);
+
         return true;
     }
 
 
+    var Main = module.exports;
 
-    Backbone.setDropboxClient = function(dropboxClient) {
+        Main._Dropbox    = Dropbox;
+        Main._Client     = null;
 
-        if (dropboxClient == void 0) {
-            throw new Error('no dropbox client');
-        }
+        Main.Backbone   = Backbone;
 
-        Backbone.dropboxClient = dropboxClient;
+        /**
+         * [init description]
+         * @param  {[type]} params [description]
+         * @return {[type]}        [description]
+         */
+        Main.init = function(params) {
+
+            params = params || {};
+
+            //auth data
+            if (!params.auth) {
+                throw new Error('no auth given');
+            }
+
+            //client data
+            params.client   = params.client || {};
+            if (typeof params.client.sandbox === 'undefined') {
+                params.client.sandbox = true;
+            }
+
+            //configure dropbox client
+            Main._Client = new Dropbox.Client(params.client);
+            Main._Client.authDriver(params.auth);
+        };
+
+
+
+
+    /**
+     * [setClient description]
+     * @param {[type]} client [description]
+     */
+    Backbone.setClient = function(client) {
+        if (!client) throw new Error('no dropbox client');
+        Main._Client = client;
     };
 
+    /**
+     * [sync description]
+     * @param  {[type]} method  [description]
+     * @param  {[type]} model   [description]
+     * @param  {[type]} options [description]
+     * @return {[type]}         [description]
+     */
     Backbone.sync = function(method, model, options) {
 
-        if (Backbone.dropboxClient === void 0) {
+        if (Main._Client === void 0) {
             throw new Error('no dropbox client set');
         }
 
@@ -208,5 +250,8 @@
                 }
             });
     };
+
+
+
 
 })();

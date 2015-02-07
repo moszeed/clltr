@@ -2,7 +2,7 @@ module.exports = {
 
     libarys : {
         files : ['client/scripts/libs/**/*.js'],
-        tasks : ['browserify:libarys']
+        tasks : ['browserify:libarys', 'uglify:libarys']
     },
 
     app : {
@@ -10,7 +10,7 @@ module.exports = {
                     'client/scripts/*.js',
                     'client/scripts/pages/*.js',
                     'client/scripts/modules/*.js'],
-        tasks : ['browserify:app']
+        tasks : ['browserify:app', 'uglify:app']
     },
 
     templates : {
@@ -27,4 +27,4 @@ module.exports = {
         files : ['./client/style/*.less'],
         tasks : ['less:app']
     }
-}
+};
