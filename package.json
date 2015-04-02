@@ -15,12 +15,6 @@
     "restify": "^2.8.4",
     "request": "^2.51.0"
   },
-  "browserify-shim": "./shims.js",
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
-  },
   "devDependencies": {
     "browserify-shim": ">=3.6.0",
     "grunt": ">=0.4.5",
