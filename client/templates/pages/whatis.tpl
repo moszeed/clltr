@@ -1,6 +1,7 @@
 <div id="head">
     <div id="logo">clltr</div>
 </div>
+
 <div id="whatis">
 
     <h1 id="logo">clltr</h1>

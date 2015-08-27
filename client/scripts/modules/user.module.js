@@ -2,62 +2,55 @@
 
     "use strict";
 
+    var Helper = require('helper');
 
-    var when    = require('when');
-    var Helper  = require('./helper.module.js');
-
-    var Dropbox     = require('backbone_dropbox');
-        Dropbox.init({
-            client  : { key : "slx7xwupbtv0chg" },
-            auth    : new Dropbox._Dropbox.AuthDriver.Popup({
-                receiverUrl     : Helper.getCurrentUrl(),
-                rememberUser    : true
+    var Backbone = require('drbx-js-backbone');
+        Backbone.init({
+            client: { key: "38sn4xw32xtxi32" },
+            auth  : new Backbone.DrbxJs.Dropbox.AuthDriver.Popup({
+                receiverUrl : Helper.getCurrentUrl(),
+                rememberUser: true
             })
         });
 
-    var Backbone    = Dropbox.Backbone;
+    var User = {};
+        User.Model = Backbone.Model.extend({
 
+            login: function(params) {
 
-    var User = module.exports;
+                params = params || {};
 
-        User.getDbClient = function() {
-
-            if (!User.isLoggedIn()) {
-                throw new Error('not logged in');
-            }
-
-            return Dropbox._Client;
-        };
-
-        User.isLoggedIn = function() {
-
-            var isAuthenticated = Dropbox._Client.isAuthenticated();
-            if (!isAuthenticated) {
-                if (localStorage.getItem('alreadyAuthenticated')) {
-                    User.login();
-                    isAuthenticated = true;
+                if (params.token) {
+                    return Backbone.init({
+                        client: {
+                            token: params.token
+                        }
+                    });
                 }
-            }
 
-            return isAuthenticated;
-        };
-
-        User.logout = function() {
-
-            localStorage.clear();
-        };
-
-        User.login = function() {
-
-            return when.promise(function(resolve, reject) {
-
-                Dropbox._Client.authenticate(function(error, client) {
-                    if (error) reject(error);
-                    else {
+                return Backbone.login()
+                    .then(function() {
                         localStorage.setItem("alreadyAuthenticated", "true");
-                        resolve();
+                    });
+            },
+
+            logout: function() {
+                localStorage.clear();
+            },
+
+            isLoggedIn: function() {
+
+                var isAuthenticated = Backbone.DrbxJs.Client.isAuthenticated();
+                if (!isAuthenticated) {
+                    if (localStorage.getItem('alreadyAuthenticated')) {
+                        this.login();
+                        isAuthenticated = true;
                     }
-                });
-            });
-        };
+                }
+
+                return isAuthenticated;
+            }
+        });
+
+        module.exports = new User.Model();
 })();

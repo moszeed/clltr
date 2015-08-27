@@ -2,19 +2,79 @@
 
     "use strict";
 
-    var $           = require('jquery');
-    var _           = require('underscore');
-    var when        = require('when');
-    var Backbone    = require('backbone');
-        Backbone.$  = $;
+    var $        = require('jquery');
+    var _        = require('underscore');
+    var Backbone = require('drbx-js-backbone');
+    var Helper   = require('helper');
 
-    var List    = require('../modules/list.module.js');
-    var Lists   = require('../modules/lists.module.js');
-    var Tags    = require('../modules/tags.module.js');
-    var User    = require('../modules/user.module.js');
-    var Helper  = require('../modules/helper.module.js');
+    // get needed modules
+    var Widget = require('../modules/widget.module.js');
+    var User   = require('../modules/user.module.js');
+    var Lists  = require('../modules/lists.module.js');
+    var Items  = require('../modules/items.module.js');
 
-    function isElementInViewport (el) {
+    // load collections
+    var cItems = new Items.Collection();
+    var cLists = new Lists.Collection();
+
+    // API Urls
+    var ApiGetFileUrl = Backbone.DrbxJs.Client._urls.getFile + "/";
+
+    // check if allowed to view this page
+    if (!User.isLoggedIn()) {
+        throw new Error('not logged in');
+    }
+
+
+    /**
+     * [getFaviconUrl description]
+     * @param  {[type]} model [description]
+     * @return {[type]}       [description]
+     */
+    function getFaviconUrl(model) {
+
+        if (model.get('faviconUrlCache')) {
+            return ApiGetFileUrl + Backbone.DrbxJs.Client._urlEncodePath(model.get('faviconUrlCache')) +
+                '?access_token=' + Backbone.DrbxJs.Client._oauth._token;
+        }
+
+        return model.get('faviconUrl');
+    }
+
+    /**
+     * [getFaviconUrl description]
+     * @param  {[type]} model [description]
+     * @return {[type]}       [description]
+     */
+    function getImageUrl(model) {
+
+        if (model.get('type') === 'image') {
+            if (model.get('urlCache')) {
+                return ApiGetFileUrl + Backbone.DrbxJs.Client._urlEncodePath(model.get('urlCache')) +
+                    '?access_token=' + Backbone.DrbxJs.Client._oauth._token;
+            }
+
+            return model.get('url');
+        }
+
+        if (model.get('type') === 'video') {
+
+            if (model.get('previewImageUrlCache')) {
+                return ApiGetFileUrl + Backbone.DrbxJs.Client._urlEncodePath(model.get('previewImageUrlCache')) +
+                    '?access_token=' + Backbone.DrbxJs.Client._oauth._token;
+            }
+
+            return model.get('previewImageUrl');
+        }
+    }
+
+
+    /**
+     * [isElementInViewport description]
+     * @param  {[type]}  el [description]
+     * @return {Boolean}    [description]
+     */
+    function isElementInViewport(el) {
 
         //special bonus for those using jQuery
         if (typeof jQuery === "function" && el instanceof jQuery) {
@@ -31,633 +91,276 @@
         );
     }
 
-    var Libary = module.exports;
-
-        Libary.lists = [];
 
 
-        Libary.taggingSnippet = Backbone.View.extend({
+    var Libary = {};
+        Libary.Events = _.extend({}, Backbone.Events);
 
-            className : 'taggingSnippet',
+        /**
+         *  Widgets
+         */
 
-            events : {
+        Libary.EditLists = Widget.View.extend({
 
-                'click a' : function() {
+            events: {
 
-                    var $add_new = this.$el.find('.add_new');
-                    if ($add_new.css('display') === 'none') {
-                        $add_new.css('display', 'block');
-                    } else {
-                        $add_new.css('display', 'none');
+                'change .listItem :input': function(el) {
+
+                    var $el = $(el.target);
+                    var $parent = $el.parent();
+
+                    var keyName = $el.attr('class');
+                    var listId = $parent.attr('class').split(' ')[1];
+
+                    var listModel = cLists.get(listId);
+                        listModel.set(keyName, $el.val());
+                        listModel.save();
+                },
+
+                'click .close': function() {
+                    this.remove();
+                },
+
+                'click #addListItem .addItem': function() {
+
+                    var $addListItem = this.$el.find('#addListItem');
+                    if ($addListItem.find('input').val() !== '') {
+
+                        cLists.add({
+                            name       : $addListItem.find('input').val(),
+                            description: $addListItem.find('textarea').val()
+                        });
+
+                        $addListItem.find(':input').val('');
+                        this.showLists();
                     }
 
+                    cLists.save()
+                        .then(function() {
+                            this.showLists();
+                        }.bind(this));
+                },
+
+                'click .listItem .removeItem': function(el) {
+
+                    var $el = $(el.target);
+                    var $parent = $el.parent();
+
+                    var listId = $parent.attr('class').split(' ')[1];
+
+                    var mList = cLists.get(listId);
+                    if (mList.get('totalCount') !== 0) {
+                        alert('list not empty');
+                        return;
+                    }
+
+                    cLists.remove(listId);
+                    this.showLists();
                 }
+            },
+
+            showLists: function() {
+
+                var tpl = _.template("<div class='listItem <%= id%>'>" +
+                    "<input class='name' value='<%= name %>'>" +
+                    "<textarea class='description'><%= description%></textarea>" +
+                    "<button class='removeItem'>remove</button>" +
+                "</div>");
+
+                var listItems = [];
+                cLists.each(function(listModel) {
+                    listItems.push(tpl(listModel.pick('id', 'name', 'description')));
+                });
+
+                this.$el.find('#availableLists').html(listItems.join(''));
             },
 
             initialize: function() {
 
-                var that = this;
-                    that.cTags = new Tags.Collection();
-                    that.cTags.refresh()
-                        .done(function() {
-                            that.render();
-                        });
-            },
+                _.bindAll(this, 'showLists');
 
-            render : function() {
-
-                var that = this;
-                    that.template({
-                        path    : './templates/snippets/tagging.snippet.html',
-                        params  : {
-                            'currentTags'   : that.model.get('tags'),
-                            'tagList'       : that.cTags.getAsList()
-                        }
-                    });
+                this.render('editlists')
+                    .then(this.showLists);
             }
         });
 
-        Libary.listingSnippet = Backbone.View.extend({
+        Libary.EditItem = Widget.View.extend({
 
-            className : 'listingSnippet',
+            events: {
 
-            events : {
-
-                'click a' : function() {
-
-                    var $add_new = this.$el.find('.add_new');
-                    if ($add_new.css('display') === 'none') {
-                        $add_new.css('display', 'block');
-                    } else {
-                        $add_new.css('display', 'none');
-                    }
+                'click .close': function() {
+                    this.remove();
                 },
 
-                'click button' : function(el) {
-
-                    var that = this;
-
-                    var $parent = $(el.target).parent();
-                    var $input  = $parent.find('input');
-
-                    var value   = $input.val();
-                    if (value && value.length !== 0) {
-
-                        this.cLists.create({
-                            'name' : value
-                        }, {
-                            wait    : true,
-                            success : function(listModel) {
-
-                                that.model.set('list', listModel.get('id'));
-                                if (!that.model.isNew()) {
-                                    that.model.save();
-                                }
-                                that.render();
-                            }
-                        });
-                    }
+                'click .delete': function() {
+                    this.remove();
                 },
 
-                'change select' : function(el) {
+                'change .list_data select': function(el) {
 
-                    var $selected = $(el.target).find(':selected');
-                    var value = $selected.attr('class');
-                    if (value && value !== null) {
-
-                        if (this.model.collection) {
-                            console.log('model is already part of store: ' + this.model.collection.store);
-                        }
+                    var $option = $(el.target).find(':selected');
+                    var listId = $option.attr('id');
+                    if (!listId) {
+                        throw new Error('no listId');
                     }
+
+                    this.model.save({
+                        'listId': [listId]
+                    });
+                }
+            },
+
+            loadUrl: function(url, saveContent) {
+
+                cItems.addAndGetData({ url: url }, {
+                        saveContent: saveContent || true
+                    })
+                    .then(function(model) {
+                        this.model = model;
+                    }.bind(this))
+                    .then(this.refresh)
+                    .then(cItems.save)
+                    .catch(function(err) {
+                        console.log(err);
+                    });
+            },
+
+            refresh: function() {
+
+                if (!this.model) {
+                    throw new Error('no model given');
+                }
+
+                this.render('edititem', {
+                    lists     : cLists.toJSON(),
+                    attributes: _.extend(this.model.toJSON(), {
+                        'faviconUrl': getFaviconUrl(this.model)
+                    })
+                });
+            },
+
+            initialize: function() {
+                _.bindAll(this, 'loadUrl', 'refresh');
+            }
+        });
+
+        Libary.DeleteItem = Widget.View.extend({
+
+            events: {
+
+                'click .close': function() {
+                    this.remove();
+                },
+
+                'click .delete': function() {
+
+                    var collection = this.model.collection;
+                    this.model.destroy();
+                    collection.save();
+                    this.remove();
                 }
             },
 
             initialize: function() {
-
-                var that = this;
-                    that.cLists = new Lists.Collection();
-                    that.cLists.refresh()
-                        .done(function() {
-                            that.render();
-                        });
-            },
-
-            render : function() {
-
-                var that = this;
-                    that.template({
-                        path    : './templates/snippets/lists.snippet.html',
-                        params  : {
-                            'lists'         : that.cLists.models,
-                            'currentList'   : that.model.store
-                        },
-                        success : function() {
-
-                            if (that.cLists.length === 0) {
-                                that.$el.find('select').prop('disabled', true);
-                            }
-
-                            that.$el.find('option.' + that.model.get('list')).prop('selected', true);
-                        }
-                    });
+                this.render('deleteItem');
             }
         });
 
 
+        /**
+         * Page Items
+         */
 
-        Libary.editWidget = Backbone.View.extend({
+        Libary.Search = Backbone.View.extend({
 
-            className   : 'edit',
+            el: '#search_results',
 
-            events      : {
+            events: {
 
-                'click .close' : function() {
-
-                    $('#widget').css('display', 'none');
-                    $('#widgetContent').html('');
+                'click .searchItem': function(el) {
+                    Libary.Events.trigger('itemSelected', $(el.currentTarget).attr('id'));
+                    this.hide();
                 },
 
-                'change .data textarea' : function(el) {
+                'click button': function() {
 
-                    var $target = $(el.target);
+                    var urlToAdd    = $('#actions .search').val();
+                    var saveContent = this.$el.find('.addNew input').is(':checked');
 
-                    var that        = this;
-                    var className   = $target.attr('class');
+                    var editItemWidget = new Libary.EditItem();
+                        editItemWidget.loadUrl(urlToAdd, saveContent);
 
-                    if (that.model.has(className)) {
-                        that.model.save(className, $target.text());
-                    }
-                },
-
-                'change .data input' : function(el) {
-
-                    var $target = $(el.target);
-
-                    var that        = this;
-                    var className   = $target.attr('class');
-
-                    if (that.model.has(className)) {
-                        that.model.save(className, $target.val());
-                    }
-                },
-
-                'change #listing select' : function(el) {
-
-                    var $select = $(el.target);
-                    var $option = $select.find(':selected');
-
-                    var oldList = Libary.lists[this.model.store].collection;
-                    var newList = Libary.lists[$option.val()].collection;
-
-                    var clonedModel = this.model.clone();
-
-                        this.model.destroy();
-
-                        clonedModel.set('id', null);
-                        newList.add(clonedModel);
-                        newList.save();
-
-                    var cListItemOld = that.cLists.get(oldList.store);
-                        cListItemOld.set('totalCount', cListItemOld.get('totalCount') - 1);
-
-                    var cListItemNew = that.cLists.get(newList.store);
-                        cListItemNew.set('totalCount', cListItemNew.get('totalCount') + 1);
-
-                        that.cLists.save();
+                    this.hide();
                 }
             },
 
-            initialize : function() {
-
-                _.bindAll(this, 'render');
-
-                var that = this;
-                    that.cLists = new Lists.Collection();
-                    that.cTags  = new Tags.Collection();
-
-                    //load all lists
-                    when.all([that.cLists.refresh(), that.cTags.refresh()])
-                        .done(that.render);
+            hide: function() {
+                this.$el.css('display', 'none');
+                this.$el.html('');
             },
 
-            render : function() {
+            render: function(inputString) {
 
-                var that = this;
+                this.$el.css('display', 'block');
 
-                var $widgetContent = $('#widgetContent');
-                    $widgetContent.html('loading Data for URL.');
+                var addTpl = '<div class="addNew">' +
+                    '<button>add</button>' +
+                    '<input type="checkbox" checked="true"><span>save content (image) to Dropbox</span>' +
+                    '</div>';
 
-                var $widget = $('#widget');
-                    $widget.css('display', 'block');
-
-                    that.template({
-                        path    : './templates/widgets/libary.edit.html',
-                        params  : that.model.attributes,
-                        success : function() {
-
-                            var taggingSnippetView = new Libary.taggingSnippet({ model : that.model });
-                                taggingSnippetView.$el.appendTo(that.$el.find('#tagging'));
-
-                            var listSnippetView = new Libary.listingSnippet({ model : that.model });
-                                listSnippetView.$el.appendTo(that.$el.find('#listing'));
-
-                            $('#widgetContent').html(that.$el);
-                        }
-                    });
-            }
-        });
-
-        Libary.addWidget = Backbone.View.extend({
-
-            className : 'add',
-
-            events      : {
-
-                'click #images img' : function(el) {
-
-                    var $target = $(el.target);
-                    var $parent = $target.parent();
-
-                    $parent.find('img')
-                        .css('border', 'none')
-                        .removeClass('selected');
-
-                    $target
-                        .css('border', '2px solid #000')
-                        .addClass('selected');
-
-                    this.model.set('previewImageUrl', $target.attr('src'));
-                },
-
-                'click #buttons .save' : function() {
-
-                    var that = this;
-
-                    var $inputs     = this.$el.find('input');
-                    var $textareas  = this.$el.find('textarea');
-
-                        //set input data
-                        $inputs.each(function() {
-                            var className = $(this).attr('class');
-                            if (that.model.has(className)) {
-                                that.model.set(className, $(this).val());
-                            }
-                        });
-
-                        //set data from textareas
-                        $textareas.each(function() {
-                            var className = $(this).attr('class');
-                            if (that.model.has(className)) {
-                                that.model.set(className, $(this).text());
-                            }
-                        });
-
-                    var listId = this.$el.find('#listing select :selected').val();
-                    if (listId === null || listId === 'null') {
-                        alert('please select a list');
-                        return;
-                    }
-
-                    var selectedList = Libary.lists[listId];
-                    if (!selectedList) {
-                        throw new Error('list (' + listId + ') does not exist');
-                    }
-
-                    //add to list
-                    selectedList.collection.add(that.model);
-
-                    //set new total count
-                    var listItem = that.cLists.get(listId);
-                        listItem.save({
-                            'totalCount' : listItem.get('totalCount') + 1
-                        });
-
-                    //save model
-                    that.model.save();
-
-                    $('#widget').css('display', 'none');
-                    $('#widgetContent').html('');
-                },
-
-                'click #buttons .close' : function() {
-                    $('#widget').css('display', 'none');
-                    $('#widgetContent').html('');
+                var searchResult = cItems.search(inputString);
+                if (searchResult.length === 0) {
+                    this.$el.html(addTpl);
+                    return;
                 }
-            },
 
-            initialize : function() {
+                var searchResultElements = _.map(searchResult, function(searchItem) {
+                    return '<div id="' + searchItem.get('id') + '" class="searchItem">' +
+                        '<span>' + Helper.truncate(searchItem.get('url'), 40, '..') + '</span>' +
+                        '<span class="description">' + Helper.truncate(searchItem.get('description'), 40, '..') +
+                        '</span></div>';
+                });
 
-                _.bindAll(this, 'render');
-
-                var that = this;
-                    that.cLists = new Lists.Collection();
-                    that.cTags  = new Tags.Collection();
-
-                    //load all lists
-                    when.all([that.cLists.refresh(), that.cTags.refresh()])
-                        .done(that.render);
-            },
-
-            render : function() {
-
-                var that = this;
-
-                var $widgetContent = $('#widgetContent');
-                    $widgetContent.html('loading Data for URL.');
-
-                var $widget = $('#widget');
-                    $widget.css('display', 'block');
-
-                    that.model.refresh()
-                            .done(function(data) {
-
-                                that.template({
-                                    path    : './templates/widgets/libary.add.html',
-                                    params  : _.extend({}, that.model.attributes, {
-                                        images  : data.images || []
-                                    }),
-                                    success : function() {
-
-                                        var taggingSnippetView = new Libary.taggingSnippet({ model : that.model });
-                                            taggingSnippetView.$el.appendTo(that.$el.find('#tagging'));
-
-                                        var listSnippetView = new Libary.listingSnippet({ model : that.model });
-                                            listSnippetView.$el.appendTo(that.$el.find('#listing'));
-
-                                        $('#widgetContent').html(that.$el);
-                                    }
-                                });
-                            });
-            }
-        });
-
-        Libary.deleteWidget = Backbone.View.extend({
-
-            events : {
-
-                'click .close' : function() {
-                    $('#widgetContent').html('');
-                    $('#widget').css('display', 'none');
-                },
-
-                'click .delete' : function() {
-
-                    var that = this;
-                    var cLists = new Lists.Collection();
-                        cLists.refresh()
-                            .done(function() {
-
-                                var mLists = cLists.get(that.model.get('id'));
-                                if (mLists) {
-
-                                    var totalCount = mLists.get('totalCount');
-                                    if (totalCount === 0 || totalCount === "0") {
-                                        mLists.save('totalCount', parseInt(totalCount, 10) - 1);
-                                    }
-                                }
-
-                                that.model.destroy();
-
-                                $('#widgetContent').html('');
-                                $('#widget').css('display', 'none');
-                            });
-
-
-                }
-            },
-
-            initialize : function() {
-
-                $('#widgetContent').html('');
-                $('#widget').css('display', 'block');
-
-                this.render();
-            },
-
-            render : function() {
-
-                var that = this;
-                    that.template({
-                        path    : './templates/widgets/libary.delete.html',
-                        success : function() {
-                            $('#widgetContent').html(that.$el);
-                        }
-                    });
+                this.$el.html(searchResultElements.join(''));
             }
         });
 
 
-        Libary.editListWidget = Backbone.View.extend({
+        Libary.Item = Backbone.View.extend({
 
-            className   : 'editList',
+            events: {
 
-            events      : {
+                'click .name': function() {
 
-                'click #lists ul li button' : function(el) {
-
-                    var $target = $(el.target);
-                    var $parent = $target.parent();
-
-                    var model = this.cLists.get($parent.attr('id'));
-                    if (model.get('totalCount') !== 0) {
-                        alert('list is not empty');
-                        return;
-                    }
-
-                    model.destroy();
-                    this.render();
-                },
-
-                'click #lists #create_lists button' : function(el) {
-
-                    var $target = $(el.target);
-                    var $parent = $target.parent();
-
-                    var $input  = $parent.find('input');
-
-                    if ($input.val().length !== 0) {
-
-                        var modelWithMaxId = this.cLists.max(function(listItem) {
-                            return parseInt(listItem.get('id'), 10);
-                        });
-
-                        var model = new Lists.Model({
-                            name : $input.val()
-                        });
-
-                        model.store = this.cLists.store;
-                        this.cLists.add(model);
-                        model.save();
-
-                        this.render();
-                    }
-                },
-
-                'change #lists #available_lists ul li input' : function(el) {
-
-                    var $target = $(el.target);
-                    var $parent = $target.parent();
-
-                    var model = this.cLists.get($parent.attr('id'));
-                        model.set('name', $target.val());
-                        model.save();
-                },
-
-                'click .close' : function() {
-                    $('#widget').css('display', 'none');
-                    $('#widgetContent').html('');
-                }
-            },
-
-            initialize  : function() {
-
-                var that = this;
-                    that.cLists = new Lists.Collection();
-
-                    that.cLists.refresh()
-                        .done(function() {
-                            that.render();
-                        });
-
-                $('#widgetContent').html(that.$el);
-            },
-
-            render      : function() {
-
-                var that = this;
-                    that.template({
-                        path    : './templates/widgets/libary.edit.list.html',
-                        params  : {
-                            'lists' : that.cLists.models
-                        },
-                        success : function() {
-                            $('#widget').css('display', 'block');
-                        }
-                    });
-            }
-        });
-
-
-
-
-        Libary.Head = Backbone.View.extend({
-
-            el      : '#main.libary #head',
-            events  : {
-
-                'click #logout' : function() {
-                    User.logout();
-                    window.rRouter.changePage('whatis');
-                },
-
-                'change input' : function(el) {
-
-                    var $element = $(el.target);
-                    var value    = $element.val();
-                    if (value.length !== 0) {
-
-                        var model = new List.Model();
-                            model.set('url', value);
-
-                        new Libary.addWidget({ model : model });
-                    }
-
-                }
-            }
-        });
-
-        Libary.Sidebar = Backbone.View.extend({
-
-            el : '#sidebar',
-
-            events : {
-                'click #manage_lists' : function() {
-                    new Libary.editListWidget();
-                }
-            },
-
-            initialize : function() {
-
-                var that = this;
-
-                    that.listenTo(that.collection, 'sync', function() {
-                        that.render();
-                    });
-            },
-
-            render : function() {
-
-                var $empty_lists = this.$el.find('#empty_lists div');
-                    $empty_lists.html('');
-
-                var $list = this.$el.find('#lists');
-                    $list.html('');
-
-                var that = this;
-                    that.collection.each(function(listItem) {
-                        if (listItem.get('totalCount') !== 0) {
-                            $list.append('<div id="' + listItem.get('id') +'" class="listItem">' +
-                            '<div class="listIcon"></div><span>' +
-                            listItem.get('name') + '</span></div>');
-                        }
-                    });
-            }
-        });
-
-
-        Libary.ListItem = Backbone.View.extend({
-
-            events      : {
-
-                'click .name' : function() {
                     var win = window.open(this.model.get('url'), '_blank');
                         win.focus();
+                    return false;
                 },
 
-                'click .extend_me' : function() {
+                'click .extend_me': function() {
+
                     var $extend = this.$el.find('.extend');
-                    if ($extend.is(':visible')) {
-                        $extend.css('display', 'none');
-                    } else {
-                        $extend.css('display', 'block');
-                    }
-                },
-
-                'click .addTag' : function() {
-                    new Libary.TagWidget({
-                        model   : this.model
-                    });
-                    return false;
-                },
-
-                'click .tags .delete' : function(events) {
-
-                    var tags    = this.model.get('tags');
-                        tags.splice($(events.target).parent().attr('class').split(' ')[0], 1);
-
-                    this.model.save('tags', tags);
-                    return false;
+                    var displayAction = ($extend.is(':visible')) ? 'none' : 'block';
+                    $extend.css('display', displayAction);
                 },
 
 
-                'click .control .delete' : function() {
-                    new Libary.deleteWidget({
-                        model : this.model
-                    });
-                    return false;
+                'click .control .edit': function() {
+                    var widget = new Libary.EditItem({ model: this.model });
+                        widget.refresh();
                 },
 
-                'click .control .edit' : function() {
-                    new Libary.editWidget({
-                        model : this.model
-                    });
-                    return false;
+                'click .control .delete': function() {
+                    var widget = new Libary.DeleteItem({ model: this.model });
                 }
             },
 
-            loadSrcByUserViewPort : function() {
+            className: function() {
+                return 'listItem ' + this.model.get('type') + ' ' + this.model.get('id');
+            },
 
-                var that = this;
+            loadSrcByUserViewPort: function() {
+
                 var $img = this.$el.find('.loader');
                 if ($img.length !== 0) {
                     if (isElementInViewport(this.$el[0])) {
@@ -668,17 +371,23 @@
                                 $img.replaceWith($nImg);
                             });
 
-                            $nImg.attr('src', $img.find('img').data('src'));
+
+                            $nImg.attr('src', getImageUrl(this.model));
                     }
                 }
             },
 
-            className   : function() {
+            initialize: function() {
 
-                return 'listItem ' + this.model.get('type');
+                _.bindAll(this, 'loadSrcByUserViewPort');
+
+                // refresh item on change
+                this.listenTo(this.model, 'sync', function() {
+                    this.render();
+                }.bind(this));
             },
 
-            render      : function() {
+            render: function() {
 
                 var type = this.model.get('type');
                 if (type === null) {
@@ -686,233 +395,374 @@
                 }
 
                 var typeName = type + 'Item';
+                var fullPath = './templates/pages/libary/libary.' + typeName + '.html';
 
-                var params = _.extend({}, this.model.attributes, {
-                    'dateFormated' : Helper.timeConverter(this.model.get('created')),
-                    'name_truncated' : Helper.truncate(this.model.get('name'), 100)
+                this.$el.removeClass('locked');
+                if (!this.model.get('id')) {
+                    this.$el.addClass('locked');
+                }
+
+                var params   = _.extend({}, this.model.toJSON(), {
+                    'faviconUrl'    : getFaviconUrl(this.model),
+                    'dateFormated'  : Helper.timeConverter(this.model.get('created')),
+                    'name_truncated': Helper.truncate(this.model.get('name'), 100)
                 });
 
-                var that = this;
-                    that.template({
-                        path    : './templates/pages/snippets/libary.' + typeName + '.html',
-                        params  : params,
-                        success : function() {
-                            that.loadSrcByUserViewPort();
-                        }
-                    });
-            },
-
-            initialize  : function(params) {
-
-                var that = this;
-
-                    that.listenTo(this.model, 'destroy',    that.remove);
-                    that.listenTo(this.model, 'sync',       that.render);
-                    that.listenTo(this.model, 'change',     that.render);
+                this.template({
+                    path   : fullPath,
+                    params : params,
+                    success: this.loadSrcByUserViewPort
+                });
             }
         });
 
         Libary.List = Backbone.View.extend({
 
-            className       : 'list',
-
-            listItems       : [],
-            scrollCounter   : 0,
-
-            _scrolling : function() {
-
-                if (this.scrollCounter <= 10) {
-                    this.scrollCounter++;
-                    return;
-                }
-
-                this.scrollCounter = 0;
-                _.each(this.listItems, function(item) {
-                    item.loadSrcByUserViewPort();
-                });
+            className: function() {
+                return 'list ' + this.model.get('id');
             },
 
-            initialize : function() {
+            initialize: function() {
 
-                _.bindAll(this, 'refresh', '_scrolling');
+                _.bindAll(this, 'saveTotalCount', 'checkItems');
 
                 var that = this;
-                    that.collection = new List.Collection({
-                        store : that.model.get('id')
+
+                    that.itemViews  = [];
+
+                    // on list change rerender
+                    that.listenTo(that.model, 'change:id', function() {
+                        that.$el.removeClass().addClass(that.className());
                     });
 
-                    that.$el.attr('id', that.model.get('id'));
+                    that.collection = new (Backbone.Collection.extend({
+                        comparator: function(model) {
+                            return model.get('url');
+                        }
+                    }));
 
                     that.listenTo(that.collection, 'add', function(model) {
                         that.addItem(model);
+                        that.saveTotalCount();
+                    });
+
+                    that.listenTo(that.collection, 'remove', function() {
+                        that.removeItem();
+                        that.saveTotalCount();
+                    });
+
+                    that.render();
+            },
+
+            moveItem: function(model) {
+                this.removeItem(model);
+                this.trigger('moveItem', model);
+            },
+
+            removeItem: function(model) {
+
+                if (!model) {
+                    throw new Error('no model given');
+                }
+
+                var filterResponse = _.filter(this.itemViews,
+                    function(itemView) {
+                        return itemView.model.get('id') === model.get('id');
+                    });
+
+                _.each(filterResponse, function(view) {
+                    view.remove();
+                });
+            },
+
+            addItem: function(model) {
+
+                if (!model) {
+                    throw new Error('no model given');
+                }
+
+                var viewItem = new Libary.Item({ model: model });
+                    viewItem.$el.prependTo(this.$el.find('.content'));
+                    viewItem.render();
+
+                this.listenTo(viewItem.model, 'change:listId', this.moveItem);
+                this.itemViews.push(viewItem);
+
+                $('#libary .no_content').css('display', 'none');
+                this.$el.css('display', 'inline-block');
+            },
+
+            saveTotalCount: function() {
+                this.model.set({ 'totalCount': this.collection.length });
+                this.model.save();
+            },
+
+            checkItems: function() {
+                _.each(this.itemViews, function(itemView) {
+                    itemView.loadSrcByUserViewPort();
+                });
+            },
+
+            render: function() {
+
+                var that = this;
+                return new Promise(
+                    function(resolve) {
+
+                        this.template({
+                            path   : './templates/pages/libary/libary.list.html',
+                            params : this.model.toJSON(),
+                            success: function() {
+
+                                that.$el.find('.content').off()
+                                    .on('scroll', _.debounce(function() {
+                                        that.checkItems();
+                                    }, 100));
+
+                                resolve();
+                            }
+                        });
+
+                    }.bind(this));
+            }
+        });
+
+        Libary.Lists = Backbone.View.extend({
+
+            el: '#libary #lists',
+
+            unsortedId: 'unsorted',
+
+            initialize: function() {
+
+                _.bindAll(this, 'addList', 'addListForUnsortedItems',
+                    'addItemToList', 'refresh', 'render', 'checkLists'
+                );
+
+                this.listItems = [];
+
+                this.listenTo(cLists, 'add', this.addList);
+                this.listenTo(cItems, 'add', this.addItemToList);
+
+                this.$el.off().on('scroll', this.checkLists);
+            },
+
+            checkLists: _.debounce(function() {
+                _.each(this.listItems, function(listView) {
+                    listView.checkItems();
+                });
+            }, 100),
+
+            addList: function(model) {
+
+                var view = new Libary.List({ model: model });
+                    view.$el.appendTo(this.$el);
+
+                this.listenTo(view, 'moveItem', this.moveListItem);
+
+                this.listItems.push(view);
+                return view.render();
+            },
+
+            moveListItem: function(model) {
+
+                this.addItemToList(model);
+            },
+
+            addListForUnsortedItems: function() {
+
+                // check if already added
+                var hasUnsortedItem = _.filter(this.listItems, function(listItem) {
+                    return listItem.model.get('unsorted');
+                });
+
+                if (hasUnsortedItem.length === 0) {
+                    this.addList(new Lists.Model({
+                        id         : this.unsortedId,
+                        name       : 'unsorted',
+                        description: 'unsorted list'
+                    }));
+                }
+            },
+
+            addItemToList: function(model) {
+
+                var listId = _.first(model.get('listId'));
+                if (!listId) {
+                    listId = this.unsortedId;
+                }
+
+                var listViews = _.filter(this.listItems, function(listItem) {
+                    return listItem.model.get('id') === listId;
+                });
+
+                _.each(listViews, function(listView) {
+                    listView.collection.add(model);
+                });
+            },
+
+            refresh: function() {
+
+                this.addListForUnsortedItems();
+                return cLists.fetch()
+                    .catch(function(err) {
+                        throw new Error(err);
                     });
             },
 
-            refresh : function() {
+            render: function() {
 
-                var that = this;
-                    that.listItems = [];
-                    that.$el.html(that.defaultTmpl);
+                var promises = [];
+                if (cLists.length !== 0) {
+                    cLists.forEach(function(model) {
+                        promises.push(this.addList(model));
+                    }.bind(this));
+                }
 
-                    that.collection.each(function(model) {
-                        that.addItem(model);
-                    });
+                return Promise.all(promises);
+            }
+        });
 
-                    that.$el.find('.content').off()
-                        .on('scroll', that._scrolling);
 
-                    if (that.collection.length !== 0) {
-                        that.$el.css('display', 'inline-block');
+        /**
+         * Libary
+         */
+
+        Libary.Head = Backbone.View.extend({
+
+            el    : '#head',
+            events: {
+
+                'keyup #actions .search': function(el) {
+
+                    var searchString = $(el.target).val();
+                    if (searchString.length >= 1) {
+                        this.vSearch.render(searchString);
+                    } else {
+                        this.vSearch.hide();
                     }
+                }
             },
 
-            addItem : function(model) {
+            initialize: function() {
+                this.vSearch = new Libary.Search();
+            }
+        });
 
-                var view = new Libary.ListItem({ model : model });
-                    view.$el.prependTo(this.$el.find('.content'));
-                    view.render();
+        Libary.Sidebar = Backbone.View.extend({
 
-                    this.listItems.push(view);
+            el    : '#sidebar',
+            events: {
+
+                'click #lists .listItem': function(el) {
+
+                    var value = $(el.target).attr('id');
+                    if (!value) {
+                        value = $(el.target).parent().attr('id');
+                    }
+
+                    this.trigger('listSelected', value);
+                },
+
+                'click #lists_actions .edit': function() {
+                    this.editListWidget = new Libary.EditLists();
+                }
             },
 
-            render : function(success) {
+            initialize: function() {
+                this.listenTo(cLists, 'sync', this.render);
+            },
 
-                var that = this;
+            render: function() {
 
-                return when.promise(function(resolve, reject) {
-                    that.template({
-                        path    : './templates/pages/snippets/libary.list.html',
-                        success : function() {
-                            that.$el.find('.head .listname').html(that.model.get('name'));
-                            that.defaultTmpl = that.$el.html();
-                            resolve();
-                        }
-                    });
+                var $empty_lists = this.$el.find('#empty_lists div');
+                    $empty_lists.html('');
+
+                var $list = this.$el.find('#lists');
+                    $list.html('');
+
+                cLists.each(function(listItem) {
+                    if (listItem.get('totalCount') !== 0) {
+                        $list.append('<div id="' + listItem.get('id') + '" class="listItem">' +
+                        '<div class="listIcon"></div><span>' +
+                        listItem.get('name') + '</span></div>');
+                    }
                 });
             }
         });
 
         Libary.View = Backbone.View.extend({
 
-            el              : '#main.libary',
-            scrollCounter   : 0,
+
+            initialize: function() {
+
+                _.bindAll(this, 'refresh', 'render');
 
 
-            events : {
-
-                'click #sidebar #lists .listItem' : function(el) {
-
-                    var value = $(el.target).attr('id');
-                     if (!value) {
-                        value = $(el.target).parent().attr('id');
-                     }
-
-                    var $list = $('#libary').find('#' + value);
-
-                    $('#libary').animate({
-                        scrollLeft: $list.position().left
-                    }, 500);
-
-
-                    function doBounce(element, times, distance, speed) {
-                        for(var i = 0; i < times; i++) {
-                            element.animate({marginTop: '-='+distance}, speed)
-                                .animate({marginTop: '+='+distance}, speed);
-                        }
+                function doBounce(element, times, distance, speed) {
+                    for(var i = 0; i < times; i++) {
+                        element.animate({marginTop: '-='+distance}, speed)
+                            .animate({marginTop: '+='+distance}, speed);
                     }
-
-                    doBounce($list, 2, '5px', 200);
-                }
-            },
-
-
-            _scrolling : function() {
-
-                var that = this;
-
-                if (that.scrollCounter < 10) {
-                    that.scrollCounter = ++that.scrollCounter;
-                    return;
                 }
 
-                that.scrollCounter = 0;
 
-                _.each(Libary.lists, function(list, listName) {
+                this.vHead = new Libary.Head();
+                this.vLists = new Libary.Lists();
+                this.vSidebar = new Libary.Sidebar();
 
-                    if (!list) {
-                        return;
-                    }
 
-                    var inView = isElementInViewport(list.$el[0]);
-                    if (inView === true) {
-                        _.each(list.listItems, function(listItem) {
-                            listItem.loadSrcByUserViewPort();
-                        });
+                this.listenTo(Libary.Events, 'itemSelected', function(itemId) {
+
+                    var selectedItem = cItems.findWhere({
+                        id: itemId
+                    });
+
+                    var listId = selectedItem.get('listId')[0] || null;
+                    if (listId) {
+                        this.vSidebar.trigger('listSelected', listId);
                     }
                 });
 
+                this.listenTo(this.vSidebar, 'listSelected', function(listId) {
+
+                    var $lists = $('#libary #lists');
+                    var $list = $lists.children('.list.' + listId);
+
+                    $lists.animate({
+                        scrollLeft: $list.position().left
+                    }, 500);
+
+                    doBounce($list, 2, '5px', 200);
+                });
+
+
+                this.refresh();
             },
 
-            _initializeLists : function() {
 
-                var promises = [];
+            refreshList: function() {
+                return this.vLists.refresh()
+                    .catch(function(err) {
+                        console.log('[err] fail to load list:' + err);
+                    });
+            },
 
-                var that = this;
-                    that.cLists.each(function(model) {
-                        promises.push(that.addListView(model));
+
+            refresh: function() {
+
+                return this.refreshList()
+                    .then(function() {
+                        return cItems.fetch();
+                    })
+                    .catch(function(err) {
+                        console.log('[err] fail to refresh: ', err);
+                        $('#libary .no_content').css('display', 'block');
                     });
 
-                    when.all(promises)
-                        .done(function() {
-
-                            //enable scrolling event
-                            that.$el.find('#libary')
-                                .on('scroll', that._scrolling);
-
-                            that.cLists.save();
-                        });
-            },
-
-            addListView : function(model) {
-
-                var $libary = this.$el.find('#libary');
-
-                var view = new Libary.List({ model : model });
-                    view.$el.appendTo($libary);
-
-                    //set to list store
-                    Libary.lists[model.get('id')] = view;
-
-                var that = this;
-
-                return view.render()
-                        .then(view.collection.refresh)
-                        .then(function(collection) {
-
-                            //refresh totalCount
-                            that.cLists.get(collection.store).set('totalCount', collection.length);
-
-                            return collection;
-                        }, Helper.showError)
-                        .then(view.refresh, Helper.showError);
-            },
-
-            initialize : function() {
-
-                _.bindAll(this, '_initializeLists');
-
-                var that = this;
-                    that.cLists = new Lists.Collection();
-
-                    that.vHead      = new Libary.Head();
-                    that.vSidebar   = new Libary.Sidebar({
-                        collection : that.cLists
-                    });
-
-                    that.cLists
-                        .refresh()
-                        .done(that._initializeLists, Helper.showError);
             }
         });
 
+
+        Libary.current = new Libary.View();
 })();

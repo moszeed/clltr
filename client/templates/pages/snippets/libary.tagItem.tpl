@@ -1,1 +1,0 @@
-<div class="name <%= name.replace(new RegExp(' ', 'g'), '_')  %>"><%= name%> <span>delete</span></div>

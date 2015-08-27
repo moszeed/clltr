@@ -7,7 +7,7 @@
 
     var $           = require('jquery');
     var _           = require('underscore');
-    var Backbone    = require('Backbone');
+    var Backbone    = require('backbone');
         Backbone.$  = $;
 
     function getTemplate(path) {
@@ -16,10 +16,8 @@
         return promise;
     }
 
-
     //preload templates
     Backbone.View.preLoadTemplates = function(templates) {
-
         if (templates !== void 0) {
             _(templates).each(function(template) {
 
@@ -32,7 +30,6 @@
 
     //make template function available in views
     Backbone.View.prototype.template = function(params) {
-
         params          = params            || {};
         params.params   = params.params     || {};
         params.success  = params.success    || function() {};
@@ -68,5 +65,7 @@
                 throw Error('fail to get template');
             });
     };
+
+    module.exports = Backbone.View;
 
 })();

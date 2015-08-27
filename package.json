@@ -1,35 +1,51 @@
 {
-  "name": "clltr",
-  "description": "a web collector",
-  "version": "0.0.1",
-  "author": {
-    "name": "Michael Röber",
-    "email": "moszeed@gmail.com"
-  },
-  "dependencies": {
-    "backbone": "^1.1.2",
-    "dropbox": "^0.10.3",
-    "jquery": "^2.1.1",
-    "underscore": "^1.7.0",
-    "when": "^3.5.0",
-    "restify": "^2.8.4",
-    "request": "^2.51.0"
-  },
-  "devDependencies": {
-    "browserify-shim": ">=3.6.0",
-    "grunt": ">=0.4.5",
-    "grunt-bowercopy": "^1.1.0",
-    "grunt-browserify": ">=1.3.1",
-    "grunt-clear": "^0.2.1",
-    "grunt-concurrent": "^0.5.0",
-    "grunt-contrib-concat": "^0.4.0",
-    "grunt-contrib-copy": "^0.5.0",
-    "grunt-contrib-htmlmin": "^0.3.0",
-    "grunt-contrib-less": "^0.11.0",
-    "grunt-contrib-uglify": "^0.5.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-http-server": ">=0.0.5",
-    "jit-grunt": ">=0.2.1",
-    "load-grunt-config": "^0.14.0"
-  }
+    "name": "clltr",
+    "private": "true",
+    "version": "0.1.0",
+    "description": "a web collector",
+    "author": {
+        "name": "Michael Röber",
+        "email": "moszeed@gmail.com"
+    },
+    "scripts": {
+
+        "test" : "browserify ./tests/*.js | tape-run",
+
+        "serve"    : "npm run watch",
+        "build"    : "npm run build:libs && npm run build:js && npm run build:css && npm run build:html && npm run build:images",
+
+        "build:libs"  : "sh bin/build-js-libs.sh",
+        "build:images": "sh bin/build-imagemin.sh",
+        "build:js"    : "sh bin/build-js.sh && sh bin/build-js-page.sh",
+        "build:html"  : "sh bin/build-htmlmin.sh",
+        "build:css"   : "lessc --compress ./client/styles/app.less > ./dist/styles/app.css",
+
+        "watch"     : "concurrent 'npm run watch:js'  'npm run watch:css' 'npm run watch:html' 'npm run watch:images'",
+        "watch:js"  : "nodemon -e js -w client/ -x 'npm run build:js'",
+        "watch:css" : "nodemon -e less -w client/styles/ -x 'npm run build:css'",
+        "watch:html": "nodemon -e tpl -w client/templates/ -x 'npm run build:html'",
+        "watch:images": "nodemon -e png,gif -w client/images/ -x 'npm run build:images'"
+    },
+    "dependencies": {
+        "backbone"            : "^1.2.1",
+        "drbx-js-backbone"    : "^0.7.5",
+        "jquery"              : "^2.1.4",
+        "xhr"                 : "^2.0.2",
+        "underscore"          : "^1.8.3"
+    },
+    "devDependencies": {
+        "tape"              : "^4.0.0",
+        "tape-run"          : "^1.0.0",
+        "es6-promise"       : "^2.3.0",
+        "request"           : "^2.58.0",
+        "imagemin-cli"      : "^1.0.0",
+        "phantom"           : "^0.7.2",
+        "phantomjs-polyfill": "^0.0.1",
+        "nodemon"           : "^1.3.7",
+        "browserify"        : "^10.2.4",
+        "concurrently"      : "^0.1.1",
+        "html-minifier"     : "^0.7.2",
+        "less"              : "^2.5.1",
+        "uglifyjs"          : "^2.4.10"
+    }
 }

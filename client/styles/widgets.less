@@ -1,0 +1,183 @@
+#widget {
+
+    display     : none;
+    box-sizing  : border-box;
+    z-index     : 99999;
+
+    .buttons {
+        padding: 20px 5px;
+    }
+
+    #widgetOverlay,
+    #widgetContent {
+        position    : absolute;
+        left        : 0;
+        top         : 0;
+        bottom      : 0;
+        right       : 0;
+    }
+
+    #widgetOverlay {
+        background-color    : #555555;
+        opacity             : 0.7;
+    }
+
+    #widgetContent {
+        margin              : 5% 10% 5% 10%;
+        background-color    : #FEFEFE;
+        overflow            : auto;
+        padding             : 20px;
+    }
+
+
+    #edititem {
+
+        img {
+            margin-bottom: 10px;
+        }
+
+        input,
+        textarea,
+        select {
+            display: block;
+            font-size:90%;
+            width: 500px;
+            margin-bottom: 3px;
+        }
+
+        textarea {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            height: 200px;
+        }
+
+    }
+
+
+    #editlist {
+
+        h2 {
+            margin: 0;
+        }
+
+        .listItem {
+
+            display: inline-block;
+            border: 1px solid #A0A0A0;
+            width: 300px;
+            height: 145px;
+            padding: 10px;
+            margin: 5px;
+            background-color: #DEDEDE;
+
+            input,
+            textarea {
+                width: 100%;
+                margin-bottom: 2px;
+                font-size:90%;
+            }
+        }
+
+        #addListItem {
+            margin-bottom: 10px;
+        }
+    }
+}
+
+
+/**
+#widget {
+
+    display     : none;
+    box-sizing  : border-box;
+    z-index     : 99999;
+
+    .buttons {
+        padding: 10px;
+    }
+
+    #widgetOverlay,
+    #widgetContent {
+        position    : absolute;
+        left        : 0;
+        top         : 0;
+        bottom      : 0;
+        right       : 0;
+    }
+
+    #widgetOverlay {
+        background-color    : #555555;
+        opacity             : 0.7;
+    }
+
+    #widgetContent {
+        margin              : 5% 10% 10% 10%;
+        background-color    : #FEFEFE;
+        overflow            : auto;
+    }
+}
+
+#widget {
+
+
+
+    #addListItem,
+    #availableLists {
+
+        input,
+        textarea {
+            display: inline-block;
+            margin-left: 1%;
+            vertical-align: top;
+            font-size: 90%;
+        }
+
+        input {
+            width: 30%;
+            margin-left: 2%;
+            margin-right: 3%;
+        }
+
+        textarea {
+            height: 60px;
+            width : 60%;
+        }
+
+        .listItem {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+
+    #addListItem {
+        position: absolute;
+        top: 0;
+        left:0;
+        right:0;
+        height: 130px;
+        background-color: #DEDEDE;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-bottom: 1px sold #A0A0A0;
+    }
+
+    #availableLists {
+        position: absolute;
+        top: 130px;
+        left:0;
+        right:0;
+        bottom: 40px;
+        padding: 40px 10px;
+        overflow: scroll;
+    }
+
+    .buttons {
+        position: absolute;
+        background-color: #DEDEDE;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+}
+**/
