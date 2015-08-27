@@ -12,6 +12,7 @@
 
     var User   = require('./scripts/modules/user.module.js');
     var Router = require('./scripts/modules/router.module.js')();
+        Router.httpsCheck();
 
     var App = module.exports;
 
