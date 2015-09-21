@@ -12,7 +12,7 @@
         "test" : "browserify ./tests/*.js | tape-run",
 
         "serve"    : "npm run watch",
-        "build"    : "npm run build:libs && npm run build:js && npm run build:css && npm run build:html && npm run build:images",
+        "build"    : "npm run build:libs & npm run build:js & npm run build:css & npm run build:html & npm run build:images",
 
         "build:libs"  : "sh bin/build-js-libs.sh",
         "build:images": "sh bin/build-imagemin.sh",
@@ -20,11 +20,11 @@
         "build:html"  : "sh bin/build-htmlmin.sh",
         "build:css"   : "lessc --compress ./client/styles/app.less > ./dist/styles/app.css",
 
-        "watch"     : "concurrent 'npm run watch:js'  'npm run watch:css' 'npm run watch:html' 'npm run watch:images'",
-        "watch:js"  : "nodemon -e js -w client/ -x 'npm run build:js'",
-        "watch:css" : "nodemon -e less -w client/styles/ -x 'npm run build:css'",
-        "watch:html": "nodemon -e tpl -w client/templates/ -x 'npm run build:html'",
-        "watch:images": "nodemon -e png,gif -w client/images/ -x 'npm run build:images'"
+        "watch"       : "concurrent 'npm run watch:js'  'npm run watch:css' 'npm run watch:html' 'npm run watch:images'",
+        "watch:js"    : "nodemon -L -e js -w client/ -x 'npm run build:js'",
+        "watch:css"   : "nodemon -L -e less -w client/styles/ -x 'npm run build:css'",
+        "watch:html"  : "nodemon -L -e tpl -w client/templates/ -x 'npm run build:html'",
+        "watch:images": "nodemon -L -e png,gif -w client/images/ -x 'npm run build:images'"
     },
     "dependencies": {
         "backbone"            : "^1.2.1",

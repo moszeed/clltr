@@ -26,6 +26,9 @@ EOF
 
 $run_docker_compose = <<EOF
 
+    echo "wait 5 seconds"
+    sleep 5
+
     # remove all untagged/dangling/none images
     DOCKER_DANGLING_IMAGES=$(docker images -q -f dangling=true)
     if [ -n "$DOCKER_DANGLING_IMAGES" ]; then

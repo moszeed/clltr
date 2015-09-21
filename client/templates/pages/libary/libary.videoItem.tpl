@@ -9,9 +9,13 @@
 <% } else { %>
 <video class="content" src="<%= url %>"></video>
 <% } %>
-<div class="description"><%= description%></div>
+
+<div class="extend">
+    <div class="description"><%= description%></div>
+</div>
 
 <div class="control">
+    <div class="extend_me">more</div>
     <div class="edit">edit</div>
     <div class="delete">delete</div>
 </div>

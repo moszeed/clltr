@@ -44,6 +44,14 @@
 
             events: {
 
+                'click #impressum': function() {
+                    Router.changePage('libary');
+                },
+
+                'click #impressumLink': function() {
+                    Router.changePage('impressum');
+                },
+
                 'click button.login': function() {
 
                     User.login()

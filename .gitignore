@@ -1,6 +1,7 @@
 /git
 /dist
 /node_modules
+/.vagrant
 
 .vagrant
 .git

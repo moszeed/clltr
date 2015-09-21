@@ -1,5 +1,8 @@
 #base image
-FROM node:0.12.6-slim
+FROM node:4.0.0-slim
+
+# exclude npm cache from the image
+VOLUME /root/.npm
 
 #add files ad set workdir
 COPY . /clltr
@@ -7,13 +10,12 @@ WORKDIR /clltr
 
 #install dependecys
 RUN apt-get clean && apt-get update && \
-    apt-get install -y g++ python bzip2 libfreetype6 make libfontconfig curl &&\
+    apt-get install -y g++ python bzip2 libfreetype6 make libfontconfig curl git &&\
     npm install -g node-gyp && \
-    npm install -g npm-check-updates@1.5.1 && \
+    npm install -g npm-check-updates && \
     npm install -g browserify && \
     npm install -g phantomjs && \
     npm install -g tape-run && \
-    npm cache clean && \
     npm install
 
 #set app port

@@ -1,8 +1,5 @@
 <div class="head">
     <span class="listname"><%= name %></span>
-    <div class="search" >
-        <input placeholder="list search">
-        <div class="search_icon"></div>
-    </div>
+    <span class="listDescription"><%= description %></span>
 </div>
 <div class="content"></div>
