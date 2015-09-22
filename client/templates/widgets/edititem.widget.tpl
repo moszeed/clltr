@@ -1,20 +1,31 @@
 <div id="edititem">
-    <h2>URL - add</h2>
+    <h2>add/edit a Url</h2>
 
-    <img src="<%= attributes.faviconUrl %>">
+    <img class="faviconUrl" src="<%= attributes.faviconUrl %>">
     <div class="data_extend">
 
         <!-- expand content -->
         <div class="page_data">
-            <input class="url" placeholder="url" value="<%= attributes.url %>">
-            <input class="name" placeholder="name" value="<%= attributes.name %>">
-            <textarea class="description" placeholder="description">
-                <%= attributes.description %>
-            </textarea>
+
+            <div>
+                <label>url</label>
+                <input class="url" placeholder="url" value="<%= attributes.url %>">
+            </div>
+
+            <div>
+                <label>pagename</label>
+                <input class="name" placeholder="name" value="<%= attributes.name %>">
+            </div>
+
+            <div>
+                <label>description</label>
+                <textarea class="description" placeholder="description"><%= attributes.description %></textarea>
+            </div>
         </div>
 
         <!-- list selection -->
         <div class="list_data">
+            <label>lists</label>
             <select>
                 <option>available lists</option>
                 <% _.each(lists, function(list) { %>
@@ -26,8 +37,9 @@
                 <% })%>
             </select>
         </div>
-
     </div>
 
-    <button class="close">close</button>
+    <div class="buttons">
+        <button class="close">close</button>
+    </div>
 </div>
