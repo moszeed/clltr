@@ -79,9 +79,9 @@ html, body {
         position    : absolute;
         display     : none;
         left        : 150px;
-        width       : 600px;
+        width       : 500px;
         top         : 40px;
-        max-height  : 300px;
+        max-height  : 90%;
 
         overflow-x  : hidden;
         overflow-y  : auto;
@@ -92,26 +92,48 @@ html, body {
         z-index : 9999;
         border  : 1px solid #111;
 
-        .addNew {
+        .add_new_item {
+
+            display: none;
+            padding: 10px;
+
+            .param {
+                padding: 5px 10px;
+
+                label {
+                    display: block;
+                    font-size: 80%;
+                    margin-bottom: 5px;
+                    font-weight: bold;
+                    color: #909090;
+                }
+
+                input {
+                    margin-right: 2px;
+                    vertical-align: middle;
+                }
+            }
 
             button {
-                margin-right: 10px;
+                padding: 3px 20px;
+                width  : 200px;
+                margin-left: 10px;
             }
-
-            input {
-                margin-right: 2px;
-                vertical-align: middle;
-            }
-
         }
 
-        div {
+        div.searchItem {
 
-            padding : 5px 10px;
+            padding : 10px 10px;
+            border-bottom : 1px solid #DEDEDE;
+
+            .url {
+                font-weight: bold;
+            }
 
             .description {
-                display: inline-block;
-                font-style: italic;
+                display    : block;
+                font-style : italic;
+                margin-top : 4px;
                 margin-left: 10px;
             }
 
@@ -121,54 +143,6 @@ html, body {
             }
         }
     }
-
-
-    /**
-    #addUrl {
-
-        display     : block;
-        position    : absolute;
-        left        : 150px;
-        font-size   : 80%;
-        top         : 8px;
-
-        .loadingIndicator {
-            display     : inline-block;
-            visibility  : hidden;
-            margin-left : 10px;
-            color       : #DDDDDD;
-        }
-
-        button {
-            display         : none;
-            width           : 100px;
-            padding-bottom  : 1px;
-        }
-
-        input {
-            padding : 2px 10px 3px 10px;
-            width : 400px;
-        }
-    }
-
-    #search {
-        position    : absolute;
-        right       : 130px;
-        font-size   : 80%;
-        top         : 8px;
-
-        input {
-
-            padding : 3px 10px 2px 10px;
-            width : 180px;
-            margin-right: 10px;
-        }
-
-        select {
-            padding : 3px 10px 2px 10px;
-        }
-    }
-    **/
 }
 
 
@@ -282,7 +256,7 @@ html, body {
 
     overflow            : hidden;
 
-    z-index             : 1;
+    z-index             : 3;
 
     background-color    : #4A4A4A;
     border-right        : 1px solid #313131;
@@ -293,7 +267,8 @@ html, body {
     }
 
     #lists,
-    #lists_actions {
+    #add_list,
+    #item_editing {
 
         position : absolute;
 
@@ -338,15 +313,13 @@ html, body {
 
     #lists {
         position : relative;
-        margin-top : 45px;
+        margin-top : 30px;
         overflow : hidden;
     }
 
-    #lists_actions {
-        bottom: 20px;
+    #add_list {
+        bottom: 30px;
     }
-
-
 
     .edit_icon {
         width               : 36px;
@@ -357,7 +330,7 @@ html, body {
     .add_icon {
         width               : 36px;
         height              : 36px;
-        background-image    : url(../images/add_list.png);
+        background-image    : url(../images/add_symbol.png);
     }
 
     .listIcon {
@@ -365,55 +338,9 @@ html, body {
         height              : 30px;
         background-image    : url(../images/list_symbol.png);
     }
-
-    /**
-    #edit_list,
-    #add_list,
-    #lists {
-
-        position : relative;
-        margin-top : 45px;
-        overflow : hidden;
-
-        .listItem {
-
-            position : relative;
-            width  : 140px;
-            height : 36px;
-
-            &:hover {
-                cursor : pointer;
-
-                span {
-                    text-decoration : underline;
-                }
-            }
-
-            .listIcon {
-                position : absolute;
-                top      : 0;
-                left     : 0;
-
-            }
-
-            span {
-                position : absolute;
-                top      : 10px;
-                left     : 40px;
-                font-size : 80%;
-                color       : #DEDEDE;
-                right    : 0;
-            }
-        }
-    }
-
-
-
-    #edit_list {
-        margin-top : 10px;
-    }
-    **/
 }
+
+
 
 #libary {
 
@@ -432,6 +359,48 @@ html, body {
         background-image    : url(../images/search_icon.png);
     }
 
+    .edit_icon {
+        width               : 18px;
+        height              : 18px;
+        background-image    : url(../images/edit_icon.png);
+    }
+
+    .options_icon {
+
+        width               : 18px;
+        height              : 18px;
+        background-image    : url(../images/settings_icon.png);
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .arrow_left {
+
+        display         : inline-block;
+        width           : 18px;
+        height          : 18px;
+        background-image: url(../images/arrow_left.png);
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .arrow_right {
+        display         : inline-block;
+        width           : 18px;
+        height          : 18px;
+        background-image: url(../images/arrow_right.png);
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+
+
     .no_content {
 
         h1 {
@@ -448,44 +417,261 @@ html, body {
         overflow-x: scroll;
     }
 
+    .item_editor {
+
+        position: relative;
+        display : inline-block;
+        height  : 100%;
+        width   : 350px;
+
+        background-color: #f5f5f5;
+        border-right: 1px solid #444;
+
+        -webkit-box-shadow: 10px 10px 5px -4px rgba(0,0,0,0.2);
+        -moz-box-shadow: 10px 10px 5px -4px rgba(0,0,0,0.2);
+        box-shadow: 10px 10px 5px -4px rgba(0,0,0,0.2);
+
+        z-index: 3;
+
+
+        .head {
+            height          : 40px;
+            background-color: #3d3d3d;
+
+            label[for="edit_icon"] {
+                display : none;
+                position: absolute;
+                right   : 40px;
+                top     : 10px;
+                width   : 18px;
+            }
+
+            .edit_icon {
+                display : none;
+                position: absolute;
+                right   : 10px;
+                top     : 10px;
+                width   : 18px;
+            }
+        }
+
+        label {
+            display: block;
+            font-size: 80%;
+            margin-bottom: 5px;
+            margin-left: 3px;
+            font-weight: bold;
+            color: #909090;
+        }
+
+        input, textarea {
+
+            border     : 1px solid #A0A0A0;
+            padding    : 5px;
+            font-size  : 90%;
+            width      : 100%;
+            background-color: #FEFEFE;
+
+            &:disabled {
+                border: 0;
+                background-color: transparent;
+                padding: 0;
+            }
+        }
+
+        textarea {
+            height: 200px;
+        }
+
+        a.remove {
+            display : none;
+            position: absolute;
+            color   : #909090;
+            bottom  : 10px;
+            right   : 20px;
+            font-size: 70%;
+        }
+
+        .editItem {
+
+            padding: 10px 10px;
+
+            &.headline {
+
+                padding: 0;
+                margin : 25px 10px 20px 10px;
+
+                input {
+                    font-size: 100%;
+                }
+            }
+        }
+
+        &:hover {
+
+            label[for="edit_icon"] {
+                cursor: pointer;
+                display: block;
+            }
+
+            .edit_icon {
+                cursor: pointer;
+                display: block;
+            }
+        }
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+
     .list {
 
         position        : relative;
         vertical-align  : top;
         white-space     : normal;
-        display         : none;
-        background-color : #EEE;
+        display         : inline-block;
+        background-color: #EEE;
 
         height          : 100%;
         width           : 300px;
 
         .head {
 
-            height              : 36px;
-            padding             : 7px 12px;
-            font-family         : Helvetica;
-            background-color    : #3d3d3d;
-            color               : #DEDEDE;
-            letter-spacing      : 1px;
-            border-right        : 1px dotted #303030;
+            height          : 40px;
+            padding         : 7px 12px;
+            font-family     : "Helvetica";
+            background-color: #3d3d3d;
+            color           : #DEDEDE;
+            letter-spacing  : 1px;
+            border-right    : 1px dotted #303030;
+            width           : 300px;
+            cursor          : default;
+
+            .listName {
+                position : absolute;
+                top      : 3px;
+                left     : 10px;
+                font-size: 90%;
+            }
 
             .listDescription {
-                font-size: 70%;
+                position : absolute;
+                top      : 22px;
+                left     : 10px;
+                font-size: 60%;
+            }
+
+            .listOptions {
+                display : none;
+                position: absolute;
+                right   : 10px;
+                top     : 10px;
+                width   : 18px;
+            }
+        }
+
+        .options {
+
+            display   : none;
+            position  : absolute;
+            top       : 40px;
+            left      : 0;
+            right     : 0;
+            height    : 220px;
+
+            padding-top: 10px;
+
+            z-index: 2;
+
+            color           : #dfdfdf;
+            background-color: #636363;
+
+            .optionsItem {
+
+                &.buttons {
+
+                    padding: 3px 5%;
+
+                    a {
+                        font-size: 70%;
+                    }
+                }
+
+                &.position {
+
+                    position: relative;
+                    padding : 3px 5%;
+                    height  : 30px;
+                    width   : 100%;
+
+                    .arrow_left {
+                        position: absolute;
+                        left    : 13px;
+                    }
+                    .arrow_right {
+                        position: absolute;
+                        right   : 200px;
+                    }
+
+                    .current_position {
+                        position: absolute;
+                        left    : 50px;
+                        top     : 3px;
+                        font-size: 80%;
+                    }
+                }
+
+
+                label {
+                    font-size: 80%;
+                    margin: 2px 5%;
+                }
+
+                input, textarea {
+                    width: 90%;
+                    margin: 2px 5%;
+                    border: 1px solid #DEDEDE;
+                    padding: 3px;
+                    font-size: 80%;
+                    color : #111;
+                }
+
             }
         }
 
         .content {
 
             position        : absolute;
-            top             : 36px;
+            top             : 40px;
             left            : 0;
             right           : 0;
             bottom          : 0;
             font-size       : 80%;
+            border-right    : 1px solid #a5a5a5;
+
+            z-index         : 1;
+
+            &.moveForOptions {
+                top: 90px;
+            }
 
             overflow-y      : scroll;
             overflow-x      : hidden;
         }
+
+        &:hover {
+
+            .head {
+                background-color: #505050;
+            }
+
+            .listOptions {
+                display: block;
+            }
+        }
+
 
 
         .listItem {
@@ -494,9 +680,19 @@ html, body {
             min-height      : 100px;
             cursor          : default;
             padding-top     : 10px;
+            padding-bottom  : 10px;
 
             border-bottom       : 1px solid #CCCCCC;
             background-color    : #FAFAFA;
+
+            &.active {
+                background-color: #DEDEDE;
+            }
+
+            &:hover {
+                background-color: #EFEFEF;
+                cursor: pointer;
+            }
 
             audio {
                 width : 95%;
@@ -603,6 +799,7 @@ html, body {
                     .url {
                         margin : 0 0 5px 40px;
                         width : 200px;
+                        overflow: hidden;
                         font-size: 85%;
 
                         &:hover {

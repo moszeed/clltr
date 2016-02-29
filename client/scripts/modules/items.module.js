@@ -153,7 +153,8 @@
             setImageToCache: function(params) {
 
                 var that = this;
-                if (params.type !== 'image') {
+                if (params.type !== 'image' &&
+                    params.type !== 'video') {
                     return Promise.resolve(params);
                 }
 
@@ -173,7 +174,7 @@
             setPreviewImageToCache: function(params) {
 
                 //add preview image to cache
-                if (params.type !== 'video' &&
+                if (params.type !== 'video' ||
                     !params.previewImageUrl) {
                     return Promise.resolve(params);
                 }
@@ -226,6 +227,7 @@
                         if (pageData.images.length !== 0) {
                             params.previewImageUrl = pageData.images[0].url;
                         }
+
                     }
 
                     if (pageData.media.type === 'photo') {
@@ -316,8 +318,15 @@
             url  : 'items',
             model: Items.Model,
 
+            revision: null,
+
             initialize: function() {
-                _.bindAll(this, 'save');
+
+                _.bindAll(this, 'save', 'cachedFetch');
+
+                this.listenTo(this, 'sync', function() {
+                    this.saveToStorage();
+                }.bind(this));
             },
 
             addAndGetData: function(params, opts) {
@@ -341,6 +350,47 @@
                         }
                     }
                 ));
+            },
+
+            cachedFetch: function(opts) {
+
+                // get the dropbox user id
+                var uid = Backbone.DrbxJs.Client._credentials.uid;
+
+                // get storage data
+                var storageData = this.getFromStorage();
+                if (storageData && storageData.user === uid &&
+                    storageData.revision === this.revision) {
+                    this.add(storageData.data, opts);
+                    return Promise.resolve();
+                }
+
+                return this.fetch(opts)
+                    .catch(function(err) {
+                        new Error(err);
+                    });
+            },
+
+            getFromStorage: function() {
+
+                var clltrStorageItems = localStorage.getItem('clltr_storage_items');
+                if (clltrStorageItems) {
+                    clltrStorageItems = JSON.parse(clltrStorageItems);
+                }
+
+                return clltrStorageItems;
+            },
+
+            saveToStorage: function() {
+
+                var uid = Backbone.DrbxJs.Client._credentials.uid;
+
+                // save to storage
+                localStorage.setItem('clltr_storage_items', JSON.stringify({
+                    user    : uid,
+                    revision: this.revision,
+                    data    : _.map(this.models, function(model) { return model.toJSON(); })
+                }));
             },
 
             save: function() {

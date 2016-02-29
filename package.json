@@ -11,20 +11,20 @@
 
         "test" : "browserify ./tests/*.js | tape-run",
 
-        "serve"    : "npm run watch",
-        "build"    : "npm run build:libs & npm run build:js & npm run build:css & npm run build:html & npm run build:images",
+        "serve": "npm run watch",
 
-        "build:libs"  : "sh bin/build-js-libs.sh",
-        "build:images": "sh bin/build-imagemin.sh",
-        "build:js"    : "sh bin/build-js.sh && sh bin/build-js-page.sh",
-        "build:html"  : "sh bin/build-htmlmin.sh",
-        "build:css"   : "lessc --compress ./client/styles/app.less > ./dist/styles/app.css",
+        "build": "npm run build:libs & npm run build:js & npm run build:css & npm run build:html & npm run build:images",
+            "build:libs"  : "sh bin/build-js-libs.sh",
+            "build:images": "sh bin/build-imagemin.sh",
+            "build:js"    : "sh bin/build-js.sh && sh bin/build-js-page.sh",
+            "build:html"  : "sh bin/build-htmlmin.sh",
+            "build:css"   : "lessc --compress ./client/styles/app.less > ./dist/styles/app.css",
 
-        "watch"       : "concurrent 'npm run watch:js'  'npm run watch:css' 'npm run watch:html' 'npm run watch:images'",
-        "watch:js"    : "nodemon -L -e js -w client/ -x 'npm run build:js'",
-        "watch:css"   : "nodemon -L -e less -w client/styles/ -x 'npm run build:css'",
-        "watch:html"  : "nodemon -L -e tpl -w client/templates/ -x 'npm run build:html'",
-        "watch:images": "nodemon -L -e png,gif -w client/images/ -x 'npm run build:images'"
+        "watch": "npm run watch:js & npm run watch:css & npm run watch:html & npm run watch:images",
+            "watch:js"    : "nodemon -L -e js -w client/ -x 'npm run build:js'",
+            "watch:css"   : "nodemon -L -e less -w client/styles/ -x 'npm run build:css'",
+            "watch:html"  : "nodemon -L -e tpl -w client/templates/ -x 'npm run build:html'",
+            "watch:images": "nodemon -L -e png,gif -w client/images/ -x 'npm run build:images'"
     },
     "dependencies": {
         "backbone"            : "^1.2.1",
@@ -35,16 +35,15 @@
     },
     "devDependencies": {
         "tape"              : "^4.0.0",
-        "tape-run"          : "^1.0.0",
-        "es6-promise"       : "^2.3.0",
+        "tape-run"          : "^2.1.3",
+        "es6-promise"       : "^3.1.2",
         "request"           : "^2.58.0",
-        "imagemin-cli"      : "^1.0.0",
+        "imagemin-cli"      : "^2.1.0",
         "phantom"           : "^0.7.2",
         "phantomjs-polyfill": "^0.0.1",
         "nodemon"           : "^1.3.7",
-        "browserify"        : "^10.2.4",
-        "concurrently"      : "^0.1.1",
-        "html-minifier"     : "^0.7.2",
+        "browserify"        : "^13.0.0",
+        "html-minifier"     : "^1.1.1",
         "less"              : "^2.5.1",
         "uglifyjs"          : "^2.4.10"
     }

@@ -1,5 +1,5 @@
-#base image
-FROM node:4.0.0-slim
+# base image
+FROM mhart/alpine-node:latest
 
 # exclude npm cache from the image
 VOLUME /root/.npm
@@ -8,15 +8,23 @@ VOLUME /root/.npm
 COPY . /clltr
 WORKDIR /clltr
 
-#install dependecys
-RUN apt-get clean && apt-get update && \
-    apt-get install -y g++ python bzip2 libfreetype6 make libfontconfig curl git &&\
-    npm install -g node-gyp && \
-    npm install -g npm-check-updates && \
-    npm install -g browserify && \
-    npm install -g phantomjs && \
+# add runtime for native compiling
+RUN apk update && \
+    apk add --update \
+            --repository http://dl-3.alpinelinux.org/alpine/edge/main/ \
+            --allow-untrusted \
+            git python make g++ gcc krb5-dev
+
+# install dependecys, but first set oberon as registry archive
+RUN npm install -g node-gyp && \
+    npm install -g nodemon && \
     npm install -g tape-run && \
+    npm install -g phantomjs && \
     npm install
+
+# remove runtime and cache
+RUN apk del git python make g++ gcc krb5-dev && \
+    rm -rf /tmp/* /var/cache/apk/* /root/.node-gyp
 
 #set app port
 EXPOSE 8282

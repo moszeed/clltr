@@ -14,7 +14,7 @@
 
         <link href="styles/app.css" rel="stylesheet">
 
-        <script src="./scripts/libary.js"></script>
+        <script src="./scripts/libary.min.js"></script>
     </head>
 
     <body>
@@ -27,6 +27,6 @@
 
     </body>
 
-    <script src="./scripts/app.js"></script>
+    <script src="./scripts/app.min.js"></script>
 </html>
 

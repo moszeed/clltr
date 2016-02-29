@@ -7,7 +7,9 @@
     <div class="description"><%= description%></div>
 </div>
 
+<!--
 <div class="control">
     <div class="edit">edit</div>
     <div class="delete">delete</div>
 </div>
+-->

@@ -13,14 +13,15 @@
 
 <div id="sidebar">
     <div id="lists"></div>
-    <div id="lists_actions">
-        <div class="edit">
-            <div class="edit_icon"></div>
-            <span>create/edit lists</span>
+    <div id="add_list">
+        <div class="listItem">
+            <div class="add_icon"></div>
+            <span>add new list</span>
         </div>
     </div>
 </div>
 <div id="libary">
+
     <div class="no_content">
         <h1>Hello and Welcome to Clltr!</h1>
         <p>

@@ -57,6 +57,16 @@
             return time;
         };
 
+        Helper.getFileTypeFromPath = function(filename) {
+
+            var splitted = filename.split('.');
+            if (splitted.length !== 2) {
+                return false;
+            }
+
+            return splitted.pop();
+        };
+
         Helper.getFilenameFromUrl = function(url) {
             return url.substring(url.lastIndexOf('/') + 1);
         };

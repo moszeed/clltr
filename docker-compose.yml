@@ -1,29 +1,28 @@
+version: '2'
+services:
 
-webserver:
-    build: .
-    dockerfile: Dockerfile-WebServer
-    restart: always
-    volumes:
-    - ./dist:/usr/local/apache2/htdocs
-    ports:
-    - "8282:80"
+  webserver:
+      build:
+        context: .
+        dockerfile: Dockerfile-WebServer
+      depends_on:
+        - webdev
+      restart: always
+      volumes:
+      - ./dist:/usr/local/apache2/htdocs
+      ports:
+      - "8282:80"
 
-webdev:
-    build: .
-    dockerfile: Dockerfile-Development
-    restart: always
-    volumes:
-    - ./bin:/clltr/bin
-    - ./package.json:/clltr/package.json
-    - ./client:/clltr/client
-    - ./dist/:/clltr/dist
-    command: npm run serve
+  webdev:
+      build:
+        context: .
+        dockerfile: Dockerfile-Development
+      restart: always
+      volumes:
+      - ./bin:/clltr/bin
+      - ./package.json:/clltr/package.json
+      - ./client:/clltr/client
+      - ./dist/:/clltr/dist
+      command: npm run serve
 
-dockergui:
-    image: dockerui/dockerui
-    privileged: true
-    restart: always
-    volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-    - "9000:9000"
+

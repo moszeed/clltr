@@ -13,10 +13,12 @@ html-minifier ./client/templates/pages/impressum.tpl ${PARAMS} -o ./dist/templat
 
 # snippets
 html-minifier ./client/templates/pages/libary/libary.list.tpl ${PARAMS} -o ./dist/templates/pages/libary/libary.list.html
+html-minifier ./client/templates/pages/libary/libary.search.tpl ${PARAMS} -o ./dist/templates/pages/libary/libary.search.html
 html-minifier ./client/templates/pages/libary/libary.audioItem.tpl ${PARAMS} -o ./dist/templates/pages/libary/libary.audioItem.html
 html-minifier ./client/templates/pages/libary/libary.imageItem.tpl ${PARAMS} -o ./dist/templates/pages/libary/libary.imageItem.html
 html-minifier ./client/templates/pages/libary/libary.linkItem.tpl ${PARAMS} -o ./dist/templates/pages/libary/libary.linkItem.html
 html-minifier ./client/templates/pages/libary/libary.videoItem.tpl ${PARAMS} -o ./dist/templates/pages/libary/libary.videoItem.html
+html-minifier ./client/templates/pages/libary/libary.itemEditor.tpl ${PARAMS} -o ./dist/templates/pages/libary/libary.itemEditor.html
 
 #widgets
 html-minifier ./client/templates/widgets/editlists.widget.tpl ${PARAMS} -o ./dist/templates/widgets/editlists.widget.html

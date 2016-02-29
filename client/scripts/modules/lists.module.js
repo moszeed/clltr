@@ -13,6 +13,7 @@
                 id         : null,
                 name       : null,
                 description: null,
+                position   : null,
                 totalCount : 0
             },
 
@@ -40,12 +41,60 @@
             url  : 'lists',
             model: Lists.Model,
 
+            revision: null,
+
             comparator: function(model) {
-                return model.get('name');
+                return -model.get("position");
             },
 
             initialize: function() {
-                _.bindAll(this, 'save');
+
+                _.bindAll(this, 'save', 'cachedFetch');
+
+                this.listenTo(this, 'sync', function() {
+                    this.saveToStorage();
+                }.bind(this));
+            },
+
+            cachedFetch: function(opts) {
+
+                // get the dropbox user id
+                var uid = Backbone.DrbxJs.Client._credentials.uid;
+
+                // get storage data
+                var storageData = this.getFromStorage();
+                if (storageData && storageData.user === uid &&
+                    storageData.revision === this.revision) {
+                    this.add(storageData.data, opts);
+                    return Promise.resolve();
+                }
+
+                return this.fetch(opts)
+                    .catch(function(err) {
+                        new Error(err);
+                    });
+            },
+
+            getFromStorage: function() {
+
+                var clltrStorageLists = localStorage.getItem('clltr_storage_lists');
+                if (clltrStorageLists) {
+                    clltrStorageLists = JSON.parse(clltrStorageLists);
+                }
+
+                return clltrStorageLists;
+            },
+
+            saveToStorage: function() {
+
+                var uid = Backbone.DrbxJs.Client._credentials.uid;
+
+                // save to storage
+                localStorage.setItem('clltr_storage_lists', JSON.stringify({
+                    user    : uid,
+                    revision: this.revision,
+                    data    : _.map(this.models, function(model) { return model.toJSON(); })
+                }));
             },
 
             save: function() {
@@ -62,6 +111,5 @@
                 return responsePromise;
             }
         });
-
 
 })();

@@ -4,7 +4,7 @@
 #original: https://gist.github.com/lmakarov/54302df8ecfc87b36320
 $install_docker_compose = <<EOF
 
-    DOCKER_COMPOSE_VERSION=1.3.3
+    DOCKER_COMPOSE_VERSION=1.6.2
 
     # Download docker-compose to the permanent storage
     echo 'Downloading docker-compose to the permanent VM storage...'
@@ -21,13 +21,20 @@ $install_docker_compose = <<EOF
     SCRIPT
 
     sudo chmod +x /var/lib/boot2docker/bootlocal.sh
+EOF
 
+$build_project = <<EOF
+
+    echo "Build Project";
+
+    cd /clltr
+    docker-compose build --no-cache
 EOF
 
 $run_docker_compose = <<EOF
 
-    echo "wait 5 seconds"
-    sleep 5
+    echo "wait 10 seconds"
+    sleep 10
 
     # remove all untagged/dangling/none images
     DOCKER_DANGLING_IMAGES=$(docker images -q -f dangling=true)
@@ -35,6 +42,25 @@ $run_docker_compose = <<EOF
         docker rmi -f $DOCKER_DANGLING_IMAGES
     fi
 
+    # show used docker & nodejs version
+    echo "\n"
+    echo "------------------------------------------"
+    docker --version
+    echo "------------------------------------------"
+    echo "Node.js version"
+    docker run clltr_webdev node -v
+    echo "------------------------------------------"
+    echo "NPM version"
+    docker run clltr_webdev npm -v
+    echo "------------------------------------------"
+    echo "NPM outdated (global)"
+    docker run clltr_webdev npm outdated -g
+    echo "------------------------------------------"
+    echo "NPM outdated (project)"
+    docker run clltr_webdev npm outdated
+    echo "------------------------------------------"
+
+    echo "\n"
     cd /clltr
     docker-compose up -d
 EOF
@@ -60,6 +86,7 @@ Vagrant.configure(2) do |config|
 
         #scripts
         clltr.vm.provision :shell, inline: $install_docker_compose
+        clltr.vm.provision :shell, inline: $build_project
         clltr.vm.provision :shell, inline: $run_docker_compose, run: "always", :privileged => false
 
     end
