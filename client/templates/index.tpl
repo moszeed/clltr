@@ -18,13 +18,8 @@
     </head>
 
     <body>
-
-        <div class="overlayInner"></div>
-        <div class="overlay"></div>
         <div id="impressumLink">Contact details / Disclaimer</div>
-
         <div id="main"></div>
-
     </body>
 
     <script src="./scripts/app.min.js"></script>
